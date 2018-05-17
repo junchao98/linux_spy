@@ -55,7 +55,7 @@ void MainWindow::on_pushButton_clicked()
 
     for(int i =0; i<15; i++)qDebug("%d ", ok_data[i]);
 
-     qDebug("add = %x ", clientConnection[0]);
+     qDebug("add = %x ", clientConnection[0] );
     sendMessage(clientConnection[0], ok_data);
 
 }
@@ -119,6 +119,7 @@ void MainWindow::send_init_message()
 {
     //我们获取已经建立的连接的子套接字
     clientConnection[c_user_num] = tcpServer->nextPendingConnection();
+
 
     connect(clientConnection[c_user_num],SIGNAL(readyRead()),this,SLOT(readMessage()));
 
