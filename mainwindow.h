@@ -5,6 +5,8 @@
 #include <QtNetwork>
 #include "qt_aes.h"
 
+#include <qlist.h>
+
 extern "C"{
 
 #include "msg_core/common.h"
@@ -33,13 +35,13 @@ public:
       int c_user_num;
 
       TAesClass *aes = new TAesClass;
+       void readMessage(QTcpSocket * socket);  //接收数据
+        void sendMessage(QTcpSocket * socket, char* s_data);
 
 private slots:
 
-    void readMessage(QTcpSocket * socket);  //接收数据
-
     void on_pushButton_clicked();
-    void sendMessage(QTcpSocket * socket, char* s_data);
+
     void send_init_message();
 
 private:

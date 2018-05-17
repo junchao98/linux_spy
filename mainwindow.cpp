@@ -55,7 +55,8 @@ void MainWindow::on_pushButton_clicked()
 
     for(int i =0; i<15; i++)qDebug("%d ", ok_data[i]);
 
-    //sendMessage(ok_data);
+     qDebug("add = %x ", clientConnection[0]);
+    sendMessage(clientConnection[0], ok_data);
 
 }
 
@@ -123,7 +124,10 @@ void MainWindow::send_init_message()
 
     connect(clientConnection[c_user_num],SIGNAL(disconnected()),clientConnection[c_user_num],SLOT(deleteLater()));
 
+    //connect(clientConnection[c_user_num],SIGNAL(disconnected()),clientConnection[c_user_num],SLOT(c_disconnected()));
+
    // clientConnection->disconnectFromHost();
+
      blockSize = 0;
 
     if(clientConnection[c_user_num] != NULL){
@@ -131,6 +135,7 @@ void MainWindow::send_init_message()
         ui->textBrowser->append("CONNECT");
         sendMessage(clientConnection[c_user_num], "connect success");
         c_user_num++;
+        ui->label_user_num->setText(QString::number(c_user_num, 10));
 
 
     }else{
