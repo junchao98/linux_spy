@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
         close();
     }
 
+    c_user_num = 0;
+
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(send_init_message()));
 
     UCHAR *p = aes_key;
@@ -53,12 +55,12 @@ void MainWindow::on_pushButton_clicked()
 
     for(int i =0; i<15; i++)qDebug("%d ", ok_data[i]);
 
-    sendMessage(ok_data);
+    //sendMessage(ok_data);
 
 }
 
 
-void MainWindow::sendMessage(char* s_data)
+void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
 {
     //用于暂存我们要发送的数据
     QByteArray block;
@@ -102,12 +104,12 @@ void MainWindow::sendMessage(char* s_data)
 
     qDebug()<<(quint16) (en_len + sizeof(quint16));
 
-    clientConnection->write(block);
+    socket->write(block);
 
     //发送数据成功后，显示提示
     ui->label->setText("send message successful!!!");
 
-    clientConnection->flush();
+    socket->flush();
 
 }
 
@@ -115,18 +117,20 @@ void MainWindow::sendMessage(char* s_data)
 void MainWindow::send_init_message()
 {
     //我们获取已经建立的连接的子套接字
-    clientConnection = tcpServer->nextPendingConnection();
-    connect(clientConnection,SIGNAL(readyRead()),this,SLOT(readMessage()));
+    clientConnection[c_user_num] = tcpServer->nextPendingConnection();
 
-    connect(clientConnection,SIGNAL(disconnected()),clientConnection,SLOT(deleteLater()));
+    connect(clientConnection[c_user_num],SIGNAL(readyRead()),this,SLOT(readMessage()));
+
+    connect(clientConnection[c_user_num],SIGNAL(disconnected()),clientConnection[c_user_num],SLOT(deleteLater()));
 
    // clientConnection->disconnectFromHost();
      blockSize = 0;
 
-    if(clientConnection != NULL){
+    if(clientConnection[c_user_num] != NULL){
 
         ui->textBrowser->append("CONNECT");
-        sendMessage("connect success");
+        sendMessage(clientConnection[c_user_num], "connect success");
+        c_user_num++;
 
 
     }else{
@@ -139,10 +143,10 @@ void MainWindow::send_init_message()
 
 
 
-void MainWindow::readMessage()
+void MainWindow::readMessage(QTcpSocket * socket)
 {
 
-    QDataStream in(clientConnection);
+    QDataStream in(socket);
     char data[100] = {0};
 
     in.setVersion(QDataStream::Qt_5_7);
@@ -155,7 +159,7 @@ void MainWindow::readMessage()
     {
        //判断接收的数据是否有两字节，也就是文件的大小信息
        //如果有则保存到blockSize变量中，没有则返回，继续接收数据
-       if(clientConnection->bytesAvailable() < (int)sizeof(quint16)) {
+       if(socket->bytesAvailable() < (int)sizeof(quint16)) {
 
            ui->textBrowser->append("no data");
            return;
@@ -163,7 +167,7 @@ void MainWindow::readMessage()
            in >> blockSize;
     }
 
-    if(clientConnection->bytesAvailable() < blockSize-2) return;
+    if(socket->bytesAvailable() < blockSize-2) return;
     //如果没有得到全部的数据，则返回，继续接收数据
 
     in.readRawData(data, blockSize);    //原始读取！
@@ -184,7 +188,7 @@ void MainWindow::readMessage()
 
     ui->textBrowser->append(jiemi);
 
-    clientConnection->flush();
+    socket->flush();
 
     blockSize = 0;
 
