@@ -56,7 +56,9 @@ private slots:
 
     void on_pushButton_clicked();
     void send_init_message();
+
      void m_disconnect();
+
 
 private:
     Ui::MainWindow *ui;
