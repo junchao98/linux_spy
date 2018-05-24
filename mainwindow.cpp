@@ -161,7 +161,7 @@ readMessage(clientConnection);
 
 }
 
-int MainWindow::readMessage(QTcpSocket * socket)
+void MainWindow::readMessage(QTcpSocket * socket)
 {
 
     QDataStream in(socket);
