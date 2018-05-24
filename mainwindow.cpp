@@ -137,7 +137,7 @@ void MainWindow::send_init_message()
 
      blockSize = 0;
 
-    if(clientConnection[c_user_num] != NULL){
+    if( p_clinet->clientConnection != NULL){
 
         ui->textBrowser->append("CONNECT");
         sendMessage(p_clinet->clientConnection, "connect success");
