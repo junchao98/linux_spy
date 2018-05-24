@@ -15,12 +15,21 @@
 #define  GRADE_MEDIUM	 2
 #define  GRADE_LOW		 3
 
-//数据类型 
-#define  TY_ORDER	1	//order长度为4
+/*数据类型 
+*数据类型的解释见t_task仓库的通讯核心文件夹
+*/
+#define  TY_ORDER	1	
 #define  TY_DATA	0
 #define  TY_KEY		2
 #define  TY_MSG		3
 #define  TY_TIME	4
+
+/*
+TY_ORDER 为控制命令类的数据		data域长度固定为4
+TY_MSG   为较短的信息传输		data域长度为 1-1000
+TY_DATA  为文件等大数据传输
+*/
+
 
 //数据状态
 #define  WORKED		1	//已处理
@@ -29,11 +38,19 @@
 #define LEN_BIT		3		//偏移
 #define BASE_BIT	3
 #define TYPE_BIT	2
-#define END_BIT		7
 #define CHECK_BIT	1
+#define STATUS_BIT  1
+#define FROM_ADDR_BIT 1
+#define TO_ADDR_BIT	1
+#define END_BIT		7
 
 //保留区填充
 #define SOLID 0 
+
+#define BROADCAST_ADDR	0x00
+#define DEFAULT_ADDR	0X01
+#define SERVER_ADDR		0X02
+
 
 //发送到stm32
 struct slave_order {
@@ -43,6 +60,7 @@ struct slave_order {
 	u8 grade;		//等级 
 };
 
+
 struct born_order {
 
 	u8 form;
@@ -50,7 +68,7 @@ struct born_order {
 
 	u8 grade;	//优先级
 	u8 type;	//数据类型
-	u8 len;		//打他域长度
+	u8 len;		//data域长度
 	
 	/*参数单位 
 		距离 m
@@ -61,6 +79,20 @@ struct born_order {
 	u8 *data;
 };
 
+extern u8 my_addr;
+extern u8 to_addr;
+
+inline void set_myaddr(u8 addr)
+{
+	
+	my_addr = addr;
+}
+
+inline void set_toaddr(u8 addr)
+{
+
+	to_addr = addr;
+}
 
 void char_to_int(u32 * data1, u8 * data2, u8 len);
 
@@ -79,6 +111,8 @@ struct _list *  init_order_list(void);
 */
 void order_init(struct born_order * egg);
 
+void msg_init(struct born_order * egg, int data_len);
+
 /*born_order 结构体默认填充h*/
 void time_init(struct born_order * egg, int time_s);
 
@@ -94,6 +128,20 @@ void bat_generdate_data(struct born_order * st_data, void *send_data(u8 *data, u
 
 /*free空间h*/
 #define order_end(x, y)  do{ free(x);  free(y);}while(0)
+
+
+/**获取数据目的地址
+*上层
+*@一条数据
+*
+*ret: 一个地址
+*/
+inline u8 get_data_toaddr(const char *data) {
+
+	return data[BASE_BIT + data[BASE_BIT] + CHECK_BIT + STATUS_BIT + FROM_ADDR_BIT + TO_ADDR_BIT];
+
+}
+
 
 /**cook_data
 * 处理传入的数据流，提取命令

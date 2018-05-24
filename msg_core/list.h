@@ -19,8 +19,7 @@ struct _list {
 	//int data[];		//柔性数组  *********
 
 	int data;
-
-	 char *p_data;
+	 char p_data[];
 };
 
 

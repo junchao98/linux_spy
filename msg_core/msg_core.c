@@ -8,6 +8,8 @@
 //#include "mbedtls/aes.h"
 #endif //  BOTTOM
 
+ u8 to_addr = 0;
+ u8 my_addr = 0;
 
  u8 const order_list[][4] = {
 
@@ -62,31 +64,34 @@
 	{ 0x2,0x3,0x0,0x0 },		//磁盘信息			35
 	{ 0x2,0x4,0x0,0x0 },
 
-	{ 0x0,0x0,0x0,0x0 },
-	{ 0x0,0x0,0x0,0x0 },
-	{ 0x0,0x0,0x0,0x0 },
-	{ 0x0,0x0,0x0,0x0 },
+	{ 0x0,0x0,0x0,0x0 },        //                  36
+	{ 0x0,0x0,0x0,0x0 },		//					37
+	{ 0x0,0x0,0x0,0x0 },		//					38
+	{ 0x0,0x0,0x0,0x0 },		//					39
+
+	/*通讯类*/
+	{ 0x3,0xf,0xf,0xf },		//心跳				40
+
+
 };
 					
 const u8 enc_key[16] = { 0x22, 0xa2, 0x13, 0xe2, 0x22, 0xa2, 0x12, 0x20, 0x22, 0x15, 0x22, 0xda, 0x67, 0x22, 0x32, 0x22 };
 //mbedtls_aes_context aes;
 
-
 u8 *tmp_data = NULL;
 
 /*缓冲信息*/
-u8 relive[RELIVE_SIZE] = { 0 };		
+//u8 relive[MAX_RELIVE_SIZE] = { 0 };
+u8 * relive = NULL;
 
 /*relive 数组下标指针*/
 u32 re_point = 0;	
 
 static void analyze_data(u8 in_data[], struct _list * p);
-static u32 check_data(u8 * in_data);
+static u32 check_data(u8 * in_data, int max_len);
 static int kill_data(u8 * data, int num);
 
 struct _list *head = NULL;			//信息链表头
-
-
 
 /**
 * @
@@ -179,7 +184,6 @@ void char_to_int(u32 * data1, u8 * data2, u8 len)
  *
  *@ret: 返回0则处理完毕
 */
-
 u8 cook_data(u8 *in_data, u32 len)
 {
 	
@@ -193,19 +197,27 @@ u8 cook_data(u8 *in_data, u32 len)
 
 	data = in_data;
 
+	/*
+	if(len > MAX_RELIVE_SIZE){
+		#if DBUG_INF
+			printf("len is too long \n");
+		#endif		
+			len = MAX_RELIVE_SIZE;
+	} */
 
 	while(1){
 
 		if (i >= len){		//数据查询完毕，但无尾
 		
-			for (start; start < len; start++) {
+			relive = (u8 *)malloc(sizeof(u8) * MAX_RELIVE_SIZE);
+			memset(relive, 0, sizeof(u8) * MAX_RELIVE_SIZE);
 
+			for (start; start < len; start++) {
 				relive[re_point] = data[start];
-				re_point++;
-				bad_head = 1;
-			
+				re_point++;		
 			}
-			
+
+			bad_head = 1;
 			break;
 		}
 	
@@ -223,17 +235,24 @@ u8 cook_data(u8 *in_data, u32 len)
 					bad_head = 0;
 					relive[re_point] = '#';		//尾部追加
 
-					tmp_len = check_data(relive);
+					tmp_len = check_data(relive, MAX_RELIVE_SIZE);
 					
 					if (-1 != tmp_len) kill_data(relive, re_point);		//把命令入队
 
 					re_point = 0;
 					bad_head = 0;
+					free(relive);
 
-					break;
+					return 0;
 				}
 
-				if (i >= len)return -1;
+				if (i >= len){
+
+					re_point = 0;
+					bad_head = 0;
+					free(relive);
+					return -1;
+				}
 
 				relive[re_point] = data[i];
 
@@ -258,7 +277,7 @@ u8 cook_data(u8 *in_data, u32 len)
 				
 					if (start + LEN_BIT < len){
 
-						tmp_len = check_data(&data[start]);
+						tmp_len = check_data(&data[start], len- start);
 
 						if (-1 != tmp_len)kill_data(&data[i], tmp_len);
 						
@@ -292,7 +311,7 @@ u8 cook_data(u8 *in_data, u32 len)
 *
 *@return： 验证成功返回数据长度
 */
-static u32 check_data(u8 *in_data)
+static u32 check_data(u8 *in_data, int max_len)
 {
 	
 	u8 i = 0;
@@ -302,7 +321,7 @@ static u32 check_data(u8 *in_data)
 	
 	if (len <= 0)goto c_error;
 
-	if (len > RELIVE_SIZE)goto c_error;
+	if (len > max_len)goto c_error_too_long;
 
 	if (in_data[len] != '#')goto c_error;  //长度验校
 
@@ -321,6 +340,13 @@ static u32 check_data(u8 *in_data)
 	
 	return len+1;
 
+
+c_error_too_long:
+#if DBUG_INF
+	printf("too long data \n");
+#endif
+	return -1;
+
 c_error:
 #if DBUG_INF
 	printf("bad data \n");
@@ -336,7 +362,7 @@ c_error2:
 
 }
 
-
+/*弃用*/
 int dbug(void)
 {
 
@@ -359,10 +385,25 @@ static void comm_start(struct born_order * egg)
 {
 
 	egg->form = ADDRESS;
-	egg->to = 0;
 
+	if (my_addr) {
+		egg->form = my_addr;
+	}
+	else {
+		egg->form = DEFAULT_ADDR;
+	}
+
+	if(to_addr){
+		egg->to = to_addr;
+	}else{
+
+		egg->to = SERVER_ADDR;
+	}
+	
 	/*数据优先级*/
 	egg->grade = GRADE_HIGH;
+
+	egg->para = 0;
 
 }
 
@@ -385,6 +426,23 @@ void order_init(struct born_order * egg)
 
 }
 
+
+/**msg默认参数填充
+*上层
+*
+*@return born_order指针
+*/
+void msg_init(struct born_order * egg, int data_len)
+{
+
+	comm_start(egg);
+
+	/*data长度*/
+	egg->len = data_len;
+
+	/*data数据类型*/
+	egg->type = TY_MSG;
+}
 
 /**time默认参数填充
 *
@@ -441,6 +499,10 @@ u8 * generdate_data(struct born_order * st_data)
 {
 	 u32 size = BASE_BIT + st_data->len + END_BIT;
 
+#if DBUG_INF
+	 printf("gendata size = %d \n", size);
+#endif
+
 	u8  *data = NULL,
 		*enc_data = NULL;
 
@@ -465,7 +527,7 @@ u8 * generdate_data(struct born_order * st_data)
 	enc_data = (u8*)malloc(sizeof(u8) * (size + 1));
 	
 	memset(data, 0, sizeof(u8) * (size + 1));
-	memset(enc_data, 0, sizeof(u8) * (size));
+	memset(enc_data, 0, sizeof(u8) * (size + 1));
 	
 
 	data[0] = '#';
@@ -497,7 +559,9 @@ u8 * generdate_data(struct born_order * st_data)
 		/*验校位积累*/
 		check ^= st_data->data[i];	
 	}
-
+#if DBUG_INF
+	printf("check = %d \n", check);
+#endif
 	offset = BASE_BIT  + st_data->len;
 
 	data[offset + 1] = check;
@@ -522,13 +586,13 @@ u8 * generdate_data(struct born_order * st_data)
 
 	free(enc_data);
 
+	/*x需要在上层释放data*/
 	return data;
 
 }
 
 
-
-/**批量生成加密数据
+/**批量生成加密数据---弃用
 *通用层
 *@st_data 批量结构体头指针
 *@send_data 发送数据的回调函数
@@ -549,7 +613,7 @@ void bat_generdate_data(struct born_order * st_data, void *send_data(u8 *data, u
 }
 
 
-/**通用层msg合成
+/**通用层msg合成--弃用
  *@data 用来存放合成后数据，长度4
  *@type 传感器类型
  *@int_area 数据整数部分

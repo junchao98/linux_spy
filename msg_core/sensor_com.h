@@ -2,10 +2,10 @@
 
 #define SEN_COMMON
 
-#define DA_HUMI		1
-#define DA_TEMP		2
-#define DA_SUN		3
-#define DA_PRESS	4
+#define DA_HUMI		0x1
+#define DA_TEMP		0x2
+#define DA_SUN		0x3
+#define DA_PRESS	0x4
 
 
 #endif

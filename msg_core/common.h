@@ -8,7 +8,7 @@
 //#define	BOTTOM	1		//底层开发时定义h
 #define	UPPER	1	//QT开发时定义h
 
-//当前设备地址h
+//当前设备默认地址h
 #define  ADDRESS  0x12
 
 /**************^^^^^^*************/
@@ -16,14 +16,16 @@
 //调试信息输出
 #define DBUG_INF	0
 
+//通用缓冲区大小
+#define CACHE_SIZE  200	
+
 //数据处理缓缓存大小
-#define RELIVE_SIZE		20
+#define MAX_RELIVE_SIZE		CACHE_SIZE+100
 
 // data 区上限
 #define CHAR_FULL 240
 
-//通用缓冲区大小
-#define CACHE_SIZE  100	
+
 
 #ifdef	UPPER
 
@@ -42,24 +44,6 @@
 #endif
 #include <stdlib.h>
 
-/*上层调用命令集h
-#define 	UP 		0		//前进h
-#define 	DOWN 	1		//后退h
-#define 	LEFT 	2		//左转h
-#define 	RIGHT 	3		//右转 h
-#define 	CW 		4		//原地顺时针旋转h
-#define 	CCW 	5		//原地逆时针旋转 h
-#define 	FAST 	6		//快速前进h
-#define 	STOP 	7		//强制停止h
-#define 	FIX 	8		//车体固定h
-#define 	WEAPON 	9		//武器状态h
-#define 	LASER 	10		//激光火力h
-#define 	ELE 	11		//电磁火力h
-#define 	TEMP 	12		//温度采集h
-#define 	VELO 	13		//速度h
-#define 	STATE  	14		//状态h
-#define 	DEP 	15		//写配置h
-*/
 
 /*对应order_list 偏移*/
 enum E_ORDER
@@ -87,6 +71,7 @@ enum E_ORDER
 	E_FREE_INF,				//读内存信息
 	E_DISK_INF,				//读磁盘信息
 
+	E_HEART = 40,			//心跳
 
 	E_ALL_NUM,
 };

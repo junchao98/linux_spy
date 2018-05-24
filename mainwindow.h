@@ -50,15 +50,14 @@ public:
        };
 
        QList<struct m_client *> clinet_list;
-
+        void email_data(char * data, uint8_t addr);
 
 private slots:
 
     void on_pushButton_clicked();
     void send_init_message();
-
-     void m_disconnect();
-
+    void m_disconnect();
+    void readsocket_data();
 
 private:
     Ui::MainWindow *ui;

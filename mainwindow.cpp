@@ -32,18 +32,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-
     delete ui;
 }
 
 void MainWindow::on_pushButton_clicked()
 {
 
-    //sendMessage("server");
 
     struct born_order order;
     char * ok_data;
-    QString send;
 
     order_init(&order);
 
@@ -52,12 +49,8 @@ void MainWindow::on_pushButton_clicked()
     ok_data = generdate_data(&order);
 
 
-    send = QString(QLatin1String(ok_data));
 
     for(int i =0; i<15; i++)qDebug("%d ", ok_data[i]);
-
-    // qDebug("add = %x ", clientConnection[0] );
-   // sendMessage(clientConnection[0], ok_data);
 
 
     for(int i=0; i<clinet_list.size(); i++){
@@ -132,7 +125,7 @@ void MainWindow::send_init_message()
 
     p_clinet->clientConnection = tcpServer->nextPendingConnection();
 
-    //connect(p_clinet->clientConnection,SIGNAL(readyRead()),this,SLOT(readMessage()));
+    connect(p_clinet->clientConnection,SIGNAL(readyRead()),this,SLOT(readsocket_data()));
 
     //connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT(deleteLater()));
 
@@ -159,16 +152,23 @@ clinet_list.append(p_clinet);
 
 }
 
+void MainWindow::readsocket_data()
+{
 
+QTcpSocket * clientConnection = qobject_cast<QTcpSocket *>(sender());
 
-void MainWindow::readMessage(QTcpSocket * socket)
+readMessage(clientConnection);
+
+}
+
+int MainWindow::readMessage(QTcpSocket * socket)
 {
 
     QDataStream in(socket);
     char data[100] = {0};
+    uint8_t addr;
 
     in.setVersion(QDataStream::Qt_5_7);
-
 
     //设置数据流版本，这里要和服务器端相同
     in.setVersion(QDataStream::Qt_5_7);
@@ -204,17 +204,56 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
     qDebug()<<"un size" << (DWORD)sizeof(char)*(blockSize-(int)sizeof(quint16));
 
-    ui->textBrowser->append(jiemi);
 
     socket->flush();
 
     blockSize = 0;
 
+   addr =  get_data_toaddr(jiemi);
+   email_data(jiemi, addr);
+
+
 }
 
 
 
- void MainWindow::m_disconnect()
+void MainWindow::email_data(char * data, uint8_t addr)
+{
+
+
+    /*广播消息*/
+    if(addr == BROADCAST_ADDR){
+
+        for(int i=0; i<clinet_list.size(); i++){
+
+
+            sendMessage(clinet_list.at(i)->clientConnection, data);
+
+        }
+
+    }else{
+        /*发送给指定clinet*/
+        for(int i=0; i<clinet_list.size(); i++){
+
+            if(clinet_list.at(i)->id == addr){
+
+                sendMessage(clinet_list.at(i)->clientConnection, data);
+
+            }
+
+
+        }
+
+
+    }
+
+
+
+
+
+}
+
+void MainWindow::m_disconnect()
  {
 
 
@@ -226,11 +265,14 @@ void MainWindow::readMessage(QTcpSocket * socket)
     c_user_num--;
      ui->label_user_num->setText(QString::number(c_user_num, 10));
 
+     /*find which one disconnect*/
      for(int i=0; i<clinet_list.size(); i++){
 
         if(clinet_list.at(i)->clientConnection == clientConnection){
 
              qDebug("disconnect %x ", clientConnection);
+             clinet_list.removeAt(i);
+             break;
 
         }
 

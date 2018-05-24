@@ -32,7 +32,7 @@ int creat_list(struct _list * head, int len, int cycle)
 	
 	}
 	
-	head->p_data = NULL;
+	//head->p_data = NULL;
 	head->data = 0;
 
 	list_node_size = len;
@@ -44,7 +44,7 @@ int creat_list(struct _list * head, int len, int cycle)
 		if (NULL == p)goto error1;
 
 		p->next = head->next;
-		p->p_data = NULL;
+		//p->p_data = NULL;
 		p->data = 0;
 
 		head->next = p;
@@ -76,7 +76,7 @@ int destory_list(struct _list * head, int len)
 
 		tmp = head->next;
 
-		if(NULL != head->p_data) free(head->p_data);		//bug 释放时触发断点
+		//if(NULL != head->p_data) free(head->p_data);		//bug 释放时触发断点
 
 		free(head);
 
@@ -109,9 +109,9 @@ struct _list * list_add_node(struct _list * head, int point, int data_size)
 
 	head->data += 1;	//	链表节点数目
 
-	p = malloc(sizeof(struct _list)+sizeof(u8) * data_size);
+	p = malloc(sizeof(struct _list)+sizeof(u8) * (data_size + 1));
 
-	p->p_data = malloc(sizeof(u8) * (data_size + 1));
+	//p->p_data = malloc(sizeof(u8) * (data_size + 1));
 	
 	p->data = data_size;
 
@@ -184,7 +184,6 @@ int list_del_node(struct _list * head, int point)
 
 	return data;
 }
-
 
 /*-> 寻找节点
 **
