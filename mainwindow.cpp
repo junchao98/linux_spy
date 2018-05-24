@@ -131,10 +131,10 @@ void MainWindow::send_init_message()
 
     p_clinet->clientConnection = tcpServer->nextPendingConnection();
 
-    connect(p_clinet->clientConnection,SIGNAL(readyRead()),this,SLOT(readMessage()));
+    //connect(p_clinet->clientConnection,SIGNAL(readyRead()),this,SLOT(readMessage()));
 
     //connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT(deleteLater()));
-    connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT( m_disconnect(QTcpSocket * clientConnection)));
+    connect(p_clinet->clientConnection,SIGNAL(disconnected()),this,SLOT( m_disconnect()));
 
      blockSize = 0;
 
@@ -211,10 +211,10 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
 
 
- void MainWindow::m_disconnect(QTcpSocket * clientConnection)
+ void MainWindow::m_disconnect()
  {
 
-    qDebug("disconnect %x ", clientConnection);
+    qDebug("disconnect");
 
  }
 
