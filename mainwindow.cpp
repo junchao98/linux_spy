@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+
     delete ui;
 }
 
@@ -134,7 +135,7 @@ void MainWindow::send_init_message()
     connect(p_clinet->clientConnection,SIGNAL(readyRead()),this,SLOT(readMessage()));
 
     //connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT(deleteLater()));
-    connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT( m_disconnect(QTcpSocket * clientConnection)));
+    connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT( m_disconnect()));
 
      blockSize = 0;
 
@@ -211,8 +212,10 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
 
 
- void MainWindow::m_disconnect(QTcpSocket * clientConnection)
+ void MainWindow::m_disconnect()
  {
+
+   QTcpSocket * clientConnection = qobject_cast<QTcpSocket *>(sender());
 
     qDebug("disconnect %x ", clientConnection);
 
