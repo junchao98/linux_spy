@@ -55,8 +55,7 @@ void MainWindow::on_pushButton_clicked()
 
     for(int i=0; i<clinet_list.size(); i++){
 
-
-       sendMessage( clinet_list.at(i)->clientConnection, "list msg test");
+       sendMessage( clinet_list.at(i)->clientConnection, ui->lineEdit->text());
 
     }
 
@@ -108,9 +107,6 @@ void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
     qDebug()<<(quint16) (en_len + sizeof(quint16));
 
     socket->write(block);
-
-    //发送数据成功后，显示提示
-    ui->label->setText("send message successful!!!");
 
     socket->flush();
 

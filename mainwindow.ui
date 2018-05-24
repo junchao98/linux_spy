@@ -17,34 +17,21 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>350</y>
+      <x>190</x>
+      <y>410</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>90</y>
-      <width>241</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
+     <string>send</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>340</y>
+      <x>30</x>
+      <y>410</y>
       <width>113</width>
       <height>20</height>
      </rect>
@@ -53,10 +40,10 @@
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>120</y>
+      <x>30</x>
+      <y>80</y>
       <width>256</width>
-      <height>192</height>
+      <height>301</height>
      </rect>
     </property>
    </widget>
