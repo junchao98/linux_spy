@@ -52,10 +52,14 @@ void MainWindow::on_pushButton_clicked()
 
     for(int i =0; i<15; i++)qDebug("%d ", ok_data[i]);
 
+    QString tmp;
+    tmp = ui->lineEdit->text();
+    QByteArray ba = tmp.toLatin1();
+    char *p_tmp = ba.data();
 
     for(int i=0; i<clinet_list.size(); i++){
 
-       sendMessage( clinet_list.at(i)->clientConnection, ui->lineEdit->text());
+       sendMessage( clinet_list.at(i)->clientConnection, p_tmp);
 
     }
 
