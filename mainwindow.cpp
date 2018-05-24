@@ -55,8 +55,16 @@ void MainWindow::on_pushButton_clicked()
 
     for(int i =0; i<15; i++)qDebug("%d ", ok_data[i]);
 
-     qDebug("add = %x ", clientConnection[0] );
-    sendMessage(clientConnection[0], ok_data);
+    // qDebug("add = %x ", clientConnection[0] );
+   // sendMessage(clientConnection[0], ok_data);
+
+
+    for(int i=0; i<clinet_list.size(); i++){
+
+
+       sendMessage( clinet_list.at(i)->clientConnection, "list msg test");
+
+    }
 
 }
 
@@ -118,23 +126,21 @@ void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
 void MainWindow::send_init_message()
 {
     //我们获取已经建立的连接的子套接字
-    clientConnection[c_user_num] = tcpServer->nextPendingConnection();
 
+    struct m_client * p_clinet = new  struct m_client;
 
-    connect(clientConnection[c_user_num],SIGNAL(readyRead()),this,SLOT(readMessage()));
+    p_clinet->clientConnection = tcpServer->nextPendingConnection();
 
-    connect(clientConnection[c_user_num],SIGNAL(disconnected()),clientConnection[c_user_num],SLOT(deleteLater()));
+    connect(p_clinet->clientConnection,SIGNAL(readyRead()),this,SLOT(readMessage()));
 
-    //connect(clientConnection[c_user_num],SIGNAL(disconnected()),clientConnection[c_user_num],SLOT(c_disconnected()));
-
-   // clientConnection->disconnectFromHost();
+    connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT(deleteLater()));
 
      blockSize = 0;
 
     if(clientConnection[c_user_num] != NULL){
 
         ui->textBrowser->append("CONNECT");
-        sendMessage(clientConnection[c_user_num], "connect success");
+        sendMessage(p_clinet->clientConnection, "connect success");
         c_user_num++;
         ui->label_user_num->setText(QString::number(c_user_num, 10));
 
@@ -144,6 +150,8 @@ void MainWindow::send_init_message()
          ui->textBrowser->append("CONNECT ERROE");
 
     }
+
+clinet_list.append(p_clinet);
 
 }
 

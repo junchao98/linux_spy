@@ -21,6 +21,9 @@ namespace Ui {
 class MainWindow;
 }
 
+
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -35,8 +38,19 @@ public:
       int c_user_num;
 
       TAesClass *aes = new TAesClass;
+
        void readMessage(QTcpSocket * socket);  //接收数据
-        void sendMessage(QTcpSocket * socket, char* s_data);
+       void sendMessage(QTcpSocket * socket, char* s_data);
+
+       struct m_client{
+
+           int i ;
+           int id ;
+           QTcpSocket *clientConnection;
+       };
+
+       QList<struct m_client *> clinet_list;
+
 
 private slots:
 
