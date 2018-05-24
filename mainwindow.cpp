@@ -220,7 +220,21 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
    QTcpSocket * clientConnection = qobject_cast<QTcpSocket *>(sender());
 
-    qDebug("disconnect %x ", clientConnection);
+
+    qDebug("some one disconnect");
+
+    c_user_num--;
+     ui->label_user_num->setText(QString::number(c_user_num, 10));
+
+     for(int i=0; i<clinet_list.size(); i++){
+
+        if(clinet_list.at(i)->clientConnection == clientConnection){
+
+             qDebug("disconnect %x ", clientConnection);
+
+        }
+
+     }
 
 
  }
