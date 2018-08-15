@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
-    <height>502</height>
+    <width>719</width>
+    <height>549</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>410</y>
+      <x>600</x>
+      <y>380</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -30,8 +30,8 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>410</y>
+      <x>440</x>
+      <y>380</y>
       <width>113</width>
       <height>20</height>
      </rect>
@@ -40,10 +40,10 @@
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>80</y>
-      <width>256</width>
-      <height>301</height>
+      <x>300</x>
+      <y>70</y>
+      <width>381</width>
+      <height>261</height>
      </rect>
     </property>
    </widget>
@@ -73,13 +73,23 @@
      <string>0</string>
     </property>
    </widget>
+   <widget class="QTreeWidget" name="treeWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>201</width>
+      <height>311</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>506</width>
+     <width>719</width>
      <height>23</height>
     </rect>
    </property>
