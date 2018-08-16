@@ -44,13 +44,13 @@ public:
 
        struct m_client{
 
-           int i ;
            int id ;
            QTcpSocket *clientConnection;
        };
 
        QList<struct m_client *> clinet_list;
         void email_data(char * data, uint8_t addr);
+        void show_client(struct m_client * p_clinet );
 
 private slots:
 

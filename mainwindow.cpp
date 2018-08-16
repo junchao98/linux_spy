@@ -22,11 +22,13 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     c_user_num = 0;
+    blockSize = 0;
 
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(send_init_message()));
 
     UCHAR *p = aes_key;
     aes->InitializePrivateKey(16, p); //进行初始化
+
 
 }
 
@@ -131,16 +133,29 @@ void MainWindow::send_init_message()
 
     connect(p_clinet->clientConnection,SIGNAL(disconnected()),this,SLOT( m_disconnect()));
 
-    qDebug("disconnect %x ", p_clinet->clientConnection);
-     blockSize = 0;
+    qDebug("connect %x ", p_clinet->clientConnection);
 
+
+     /*a new device online*/
     if( p_clinet->clientConnection != NULL){
 
-        ui->textBrowser->append("CONNECT");
+
+        //QString msg_str =QString("%x").arg(p_clinet->clientConnection);
+        QString msg_str;
+        msg_str.sprintf("%x CONNECT", p_clinet->clientConnection);
+
+        ui->textBrowser->append(msg_str);
+
         sendMessage(p_clinet->clientConnection, "connect success");
+
         c_user_num++;
         ui->label_user_num->setText(QString::number(c_user_num, 10));
 
+        //p_clinet->id = p_clinet->clientConnection;
+
+        clinet_list.append(p_clinet);
+
+        show_client(p_clinet);
 
     }else{
 
@@ -148,7 +163,22 @@ void MainWindow::send_init_message()
 
     }
 
-clinet_list.append(p_clinet);
+
+
+}
+
+void MainWindow::show_client(struct m_client * p_clinet )
+{
+
+    QString inf_str;
+
+    inf_str.sprintf("%x", p_clinet->clientConnection);
+
+    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 0, new QTableWidgetItem(inf_str));
+
+    ui->tableWidget->show();
+    qDebug() << ui->tableWidget->rowCount();
 
 }
 
@@ -226,7 +256,6 @@ void MainWindow::email_data(char * data, uint8_t addr)
 
         for(int i=0; i<clinet_list.size(); i++){
 
-
             sendMessage(clinet_list.at(i)->clientConnection, data);
 
         }
@@ -270,7 +299,11 @@ void MainWindow::m_disconnect()
 
         if(clinet_list.at(i)->clientConnection == clientConnection){
 
-             qDebug("disconnect %x ", clientConnection);
+
+                QString msg_str;
+                msg_str.sprintf("%x disconnected", clientConnection);
+              ui->textBrowser->append(msg_str);
+
              clinet_list.removeAt(i);
              break;
 
