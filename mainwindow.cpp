@@ -3,7 +3,15 @@
 #include <QDebug>
 
 
+enum TABLE_POINT{
+    CHECK_POINT = 0,
+    ID_POINT,
+    IP_POINT,
+    HD_POINT,
+    TIME_POINT,
+    VER_POINT
 
+};
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     c_user_num = 0;
     blockSize = 0;
+    verison = 0;
 
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(send_init_message()));
 
@@ -41,18 +50,6 @@ void MainWindow::on_pushButton_clicked()
 {
 
 
-    struct born_order order;
-    char * ok_data;
-
-    order_init(&order);
-
-    order.data = (char *)order_list[E_UP];
-
-    ok_data = generdate_data(&order);
-
-
-
-    for(int i =0; i<15; i++)qDebug("%d ", ok_data[i]);
 
     QString tmp;
     tmp = ui->lineEdit->text();
@@ -89,8 +86,8 @@ void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
 
      DWORD size = strlen(send_data);
 
-     size = 15;
-
+     //size = 15;
+     if(size > 1024)return;
 
       qDebug()<<"enc size "<<size;
 
@@ -143,15 +140,15 @@ void MainWindow::send_init_message()
         //QString msg_str =QString("%x").arg(p_clinet->clientConnection);
         QString msg_str;
         msg_str.sprintf("%x CONNECT", p_clinet->clientConnection);
-
         ui->textBrowser->append(msg_str);
+        msg_str.clear();
 
-        sendMessage(p_clinet->clientConnection, "connect success");
+        msg_str.sprintf("<init_msg id=\"%x\" now_verison=\"%d\"></init_msg>", p_clinet->clientConnection, 2);
+        QByteArray ba = msg_str.toLatin1();
+        sendMessage(p_clinet->clientConnection, ba.data());
 
         c_user_num++;
         ui->label_user_num->setText(QString::number(c_user_num, 10));
-
-        //p_clinet->id = p_clinet->clientConnection;
 
         clinet_list.append(p_clinet);
 
@@ -174,20 +171,31 @@ void MainWindow::show_client(struct m_client * p_clinet )
 
     inf_str.sprintf("%x", p_clinet->clientConnection);
 
-    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 0, new QTableWidgetItem(inf_str));
 
-    ui->tableWidget->show();
-    qDebug() << ui->tableWidget->rowCount();
+
+    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, ID_POINT, new QTableWidgetItem(inf_str));
+
+    QTableWidgetItem *check_box = new QTableWidgetItem();
+    check_box->setCheckState(Qt::Unchecked);
+    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, CHECK_POINT, check_box);
+
+    QDateTime time = QDateTime::currentDateTime();
+    QString time_str = time.toString("hh:m:s");
+     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, TIME_POINT, new QTableWidgetItem(time_str));
+
+
+    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, IP_POINT, new QTableWidgetItem(p_clinet->clientConnection->peerAddress().toString()));
+
 
 }
 
 void MainWindow::readsocket_data()
 {
 
-QTcpSocket * clientConnection = qobject_cast<QTcpSocket *>(sender());
+    QTcpSocket * clientConnection = qobject_cast<QTcpSocket *>(sender());
 
-readMessage(clientConnection);
+    readMessage(clientConnection);
 
 }
 
@@ -270,14 +278,10 @@ void MainWindow::email_data(char * data, uint8_t addr)
 
             }
 
-
         }
 
 
     }
-
-
-
 
 
 }

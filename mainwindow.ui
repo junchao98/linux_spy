@@ -58,6 +58,11 @@
     </property>
     <column>
      <property name="text">
+      <string>select</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
       <string>设备 ID</string>
      </property>
     </column>
@@ -82,13 +87,13 @@
      </property>
     </column>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>40</x>
       <y>40</y>
       <width>101</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
