@@ -19,9 +19,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    c_user_num = 0;
+    blockSize = 0;
+    verison = 0;
+    loadSize = 4*1024;
 
-    //aes_key[16]={0x22, 0xa2, 0x13, 0xe2, 0x22, 0xa2, 0x12, 0x20, 0x22, 0x15, 0x22, 0xda, 0x67, 0x22, 0x32, 0x22 };
+     timer_down = new QTimer(this);
+     connect( timer_down, SIGNAL( timeout() ), this, SLOT( auto_scanf_down() ) );
+     timer_down->stop();
 
+
+    /*数据通信链接*/
     tcpServer = new QTcpServer(this);
     if(!tcpServer->listen(QHostAddress::Any,9527))
     {  //**本地主机的6666端口，如果出错就输出错误信息，并关闭
@@ -29,11 +37,19 @@ MainWindow::MainWindow(QWidget *parent) :
         close();
     }
 
-    c_user_num = 0;
-    blockSize = 0;
-    verison = 0;
-
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(send_init_message()));
+
+    /*文件传输链接*/
+    tcp_file_server = new QTcpServer(this);
+
+    if(!tcp_file_server->listen(QHostAddress::LocalHost,9528))
+    {  //**本地主机的6666端口，如果出错就输出错误信息，并关闭
+        qDebug() << tcp_file_server->errorString();
+        close();
+    }
+
+    connect(tcp_file_server,SIGNAL(newConnection()),this,SLOT(send_init_file()));
+
 
     UCHAR *p = aes_key;
     aes->InitializePrivateKey(16, p); //进行初始化
@@ -46,6 +62,23 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::auto_scanf_down(void)
+{
+
+    /*没有等待下载的client*/
+    if(file_clinet_list.size() == 0)return;
+
+    for(int i=0; i<file_clinet_list.size(); i++){
+
+        sendFile(file_clinet_list.at(i), "work/down.test");
+
+    }
+
+
+}
+
+
+
 void MainWindow::on_pushButton_clicked()
 {
 
@@ -56,9 +89,9 @@ void MainWindow::on_pushButton_clicked()
     QByteArray ba = tmp.toLatin1();
     char *p_tmp = ba.data();
 
-    for(int i=0; i<clinet_list.size(); i++){
+    for(int i=0; i<msg_clinet_list.size(); i++){
 
-       sendMessage( clinet_list.at(i)->clientConnection, p_tmp);
+       sendMessage( msg_clinet_list.at(i)->clientConnection, p_tmp);
 
     }
 
@@ -116,6 +149,99 @@ void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
 }
 
 
+void MainWindow::sendFile(struct m_client * p_clinet, QString fileName)  //实现文件大小等信息的发送
+{
+
+    qint64 c_totalBytes;
+    p_clinet->file_inf.localFile = new QFile(fileName);
+
+    QFile * file =  p_clinet->file_inf.localFile;
+
+    if(! file->open(QFile::ReadOnly))
+    {
+       qDebug() << "open file error!";
+       return;
+    }
+
+    //文件总大小
+   p_clinet->file_inf.totalBytes = file->size();
+    c_totalBytes = p_clinet->file_inf.totalBytes;
+
+   qDebug()<< "file size :" <<  p_clinet->file_inf.totalBytes;
+
+    QDataStream sendOut(&outBlock,QIODevice::WriteOnly);
+    sendOut.setVersion(QDataStream::Qt_4_6);
+    QString currentFileName = fileName.right(fileName.size()- fileName.lastIndexOf('/')-1);
+
+    //依次写入总大小信息空间，文件名大小信息空间，文件名
+    sendOut << qint64(0) << qint64(0) << currentFileName;
+
+    //这里的总大小是文件名大小等信息和实际文件大小的总和
+    c_totalBytes += outBlock.size();
+
+    sendOut.device()->seek(0);
+    //返回outBolock的开始，用实际的大小信息代替两个qint64(0)空间
+    sendOut<<c_totalBytes<<qint64((outBlock.size() - sizeof(qint64)*2));
+
+    //发送完头数据后剩余数据的大小
+    p_clinet->file_inf.bytesToWrite = c_totalBytes - p_clinet->clientConnection->write(outBlock);
+
+    //ui->clientStatusLabel->setText(tr("已连接"));
+    outBlock.resize(0);
+}
+
+
+//更新进度条，实现文件的传送
+void MainWindow::sendFileBody(qint64 numBytes)
+{
+
+    struct m_client * p_clinet;
+    QTcpSocket * clientConnection = qobject_cast<QTcpSocket *>(sender());
+
+    /*查找、私有化操作的client*/
+    for(int i=0; i<file_clinet_list.size(); i++){
+
+        if(file_clinet_list.at(i)->clientConnection == clientConnection){
+
+            p_clinet=file_clinet_list.at(i);
+        }
+
+    }
+
+    //已经发送数据的大小
+    p_clinet->file_inf.bytesWritten += (int)numBytes;
+
+    if(p_clinet->file_inf.bytesToWrite > 0) //如果已经发送了数据
+    {
+   //每次发送loadSize大小的数据，这里设置为4KB，如果剩余的数据不足4KB，
+   //就发送剩余数据的大小
+       outBlock =p_clinet->file_inf.localFile->read(qMin(p_clinet->file_inf.bytesToWrite,loadSize));
+
+       //发送完一次数据后还剩余数据的大小
+       p_clinet->file_inf.bytesToWrite -= (int)clientConnection->write(outBlock);
+
+       //清空发送缓冲区
+       outBlock.resize(0);
+
+    } else {
+       p_clinet->file_inf.localFile->close(); //如果没有发送任何数据，则关闭文件
+    }
+
+    //更新进度条
+   // ui->clientProgressBar->setMaximum(totalBytes);
+   // ui->clientProgressBar->setValue(bytesWritten);
+
+    if(p_clinet->file_inf.bytesWritten == p_clinet->file_inf.totalBytes) //发送完毕
+    {
+       ui->textBrowser->append("传送文件成功");
+       p_clinet->file_inf.localFile->close();
+       p_clinet->clientConnection->close();
+       qDebug() << "传送文件成功";
+    }
+}
+
+
+
 void MainWindow::send_init_message()
 {
     //我们获取已经建立的连接的子套接字
@@ -150,7 +276,7 @@ void MainWindow::send_init_message()
         c_user_num++;
         ui->label_user_num->setText(QString::number(c_user_num, 10));
 
-        clinet_list.append(p_clinet);
+        msg_clinet_list.append(p_clinet);
 
         show_client(p_clinet);
 
@@ -163,6 +289,47 @@ void MainWindow::send_init_message()
 
 
 }
+
+
+void MainWindow::send_init_file()
+{
+    //我们获取已经建立的连接的子套接字
+
+    struct m_client * p_clinet = new  struct m_client;
+
+    p_clinet->clientConnection = tcp_file_server->nextPendingConnection();
+
+    //connect(p_clinet->clientConnection,SIGNAL(readyRead()),this,SLOT(readsocket_data()));
+
+    connect(p_clinet->clientConnection,SIGNAL(disconnected()),p_clinet->clientConnection,SLOT(deleteLater()));
+    connect(p_clinet->clientConnection,SIGNAL(bytesWritten(qint64)),this,SLOT(sendFileBody(qint64)));
+
+    qDebug("file connect %x ", p_clinet->clientConnection);
+
+
+     /*a new device online*/
+    if( p_clinet->clientConnection != NULL){
+
+        //sendFile(p_clinet, "d://test.jpg");
+
+        file_clinet_list.append(p_clinet);
+
+        //show_client(p_clinet);
+
+    }else{
+
+         ui->textBrowser->append("CONNECT ERROE");
+
+    }
+
+
+
+}
+
+
+
+
+
 
 void MainWindow::show_client(struct m_client * p_clinet )
 {
@@ -262,19 +429,19 @@ void MainWindow::email_data(char * data, uint8_t addr)
     /*广播消息*/
     if(addr == BROADCAST_ADDR){
 
-        for(int i=0; i<clinet_list.size(); i++){
+        for(int i=0; i<msg_clinet_list.size(); i++){
 
-            sendMessage(clinet_list.at(i)->clientConnection, data);
+            sendMessage(msg_clinet_list.at(i)->clientConnection, data);
 
         }
 
     }else{
         /*发送给指定clinet*/
-        for(int i=0; i<clinet_list.size(); i++){
+        for(int i=0; i<msg_clinet_list.size(); i++){
 
-            if(clinet_list.at(i)->id == addr){
+            if(msg_clinet_list.at(i)->id == addr){
 
-                sendMessage(clinet_list.at(i)->clientConnection, data);
+                sendMessage(msg_clinet_list.at(i)->clientConnection, data);
 
             }
 
@@ -299,16 +466,16 @@ void MainWindow::m_disconnect()
      ui->label_user_num->setText(QString::number(c_user_num, 10));
 
      /*find which one disconnect*/
-     for(int i=0; i<clinet_list.size(); i++){
+     for(int i=0; i<msg_clinet_list.size(); i++){
 
-        if(clinet_list.at(i)->clientConnection == clientConnection){
+        if(msg_clinet_list.at(i)->clientConnection == clientConnection){
 
 
                 QString msg_str;
                 msg_str.sprintf("%x disconnected", clientConnection);
               ui->textBrowser->append(msg_str);
 
-             clinet_list.removeAt(i);
+             msg_clinet_list.removeAt(i);
              break;
 
         }
