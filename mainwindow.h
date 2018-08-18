@@ -6,6 +6,9 @@
 #include "qt_aes.h"
 #include <QTimer>
 #include <qlist.h>
+#include <QtXml>
+#include <QtXml/QDomDocument>
+
 
 extern "C"{
 
@@ -46,7 +49,7 @@ public:
 
     struct m_client{
 
-        int id ;
+        QString id ;
          struct transfer_inf file_inf;
         QTcpSocket *clientConnection;
     };
@@ -62,11 +65,12 @@ public:
        void readMessage(QTcpSocket * socket);  //接收数据
        void sendMessage(QTcpSocket * socket, char* s_data);
        void sendFile(struct m_client * p_clinet, QString fileName);
-
-
+       void do_cmd(QString cmd);
+       void prase_bd_info( QDomElement rootnode);
 
        QList<struct m_client *> msg_clinet_list;
        QList<struct m_client *> file_clinet_list;
+       int find_msg_clinet_point(QString id);
 
         void email_data(char * data, uint8_t addr);
         void show_client(struct m_client * p_clinet );

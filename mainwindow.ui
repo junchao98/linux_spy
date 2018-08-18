@@ -6,8 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
+<<<<<<< HEAD
     <width>976</width>
     <height>640</height>
+=======
+    <width>898</width>
+    <height>622</height>
+>>>>>>> c3569a234d4dd9b4797b0ef929a02cf5b882039c
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +24,11 @@
      <rect>
       <x>20</x>
       <y>90</y>
+<<<<<<< HEAD
       <width>921</width>
+=======
+      <width>871</width>
+>>>>>>> c3569a234d4dd9b4797b0ef929a02cf5b882039c
       <height>261</height>
      </rect>
     </property>
@@ -41,6 +50,11 @@
     <column>
      <property name="text">
       <string>磁盘信息</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>CPU info</string>
      </property>
     </column>
     <column>
@@ -150,7 +164,11 @@
     <rect>
      <x>0</x>
      <y>0</y>
+<<<<<<< HEAD
      <width>976</width>
+=======
+     <width>898</width>
+>>>>>>> c3569a234d4dd9b4797b0ef929a02cf5b882039c
      <height>23</height>
     </rect>
    </property>
