@@ -41,7 +41,7 @@ public:
         qint64 totalBytes;  //数据总大小
         qint64 bytesWritten;  //已经发送数据大小
         qint64 bytesToWrite;   //剩余数据大小
-
+        bool down_status;
     };
 
     struct m_client{

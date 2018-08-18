@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
      timer_down = new QTimer(this);
      connect( timer_down, SIGNAL( timeout() ), this, SLOT( auto_scanf_down() ) );
-     timer_down->stop();
+     timer_down->start(5000);   //5s
 
 
     /*数据通信链接*/
@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /*文件传输链接*/
     tcp_file_server = new QTcpServer(this);
 
-    if(!tcp_file_server->listen(QHostAddress::LocalHost,9528))
+    if(!tcp_file_server->listen(QHostAddress::Any,9528))
     {  //**本地主机的6666端口，如果出错就输出错误信息，并关闭
         qDebug() << tcp_file_server->errorString();
         close();
@@ -53,7 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     UCHAR *p = aes_key;
     aes->InitializePrivateKey(16, p); //进行初始化
-
 
 }
 
@@ -70,7 +69,12 @@ void MainWindow::auto_scanf_down(void)
 
     for(int i=0; i<file_clinet_list.size(); i++){
 
-        sendFile(file_clinet_list.at(i), "work/down.test");
+        if(file_clinet_list.at(i)->file_inf.down_status){
+            sendFile(file_clinet_list.at(i), "/home/lornyin/work/lus/update.tar.bz2");
+            file_clinet_list.at(i)->file_inf.down_status = false;
+
+        }
+
 
     }
 
@@ -152,7 +156,6 @@ void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
 void MainWindow::sendFile(struct m_client * p_clinet, QString fileName)  //实现文件大小等信息的发送
 {
 
-    qint64 c_totalBytes;
     p_clinet->file_inf.localFile = new QFile(fileName);
 
     QFile * file =  p_clinet->file_inf.localFile;
@@ -165,7 +168,7 @@ void MainWindow::sendFile(struct m_client * p_clinet, QString fileName)  //实�
 
     //文件总大小
    p_clinet->file_inf.totalBytes = file->size();
-    c_totalBytes = p_clinet->file_inf.totalBytes;
+
 
    qDebug()<< "file size :" <<  p_clinet->file_inf.totalBytes;
 
@@ -177,16 +180,15 @@ void MainWindow::sendFile(struct m_client * p_clinet, QString fileName)  //实�
     sendOut << qint64(0) << qint64(0) << currentFileName;
 
     //这里的总大小是文件名大小等信息和实际文件大小的总和
-    c_totalBytes += outBlock.size();
+    p_clinet->file_inf.totalBytes += outBlock.size();
 
     sendOut.device()->seek(0);
     //返回outBolock的开始，用实际的大小信息代替两个qint64(0)空间
-    sendOut<<c_totalBytes<<qint64((outBlock.size() - sizeof(qint64)*2));
+    sendOut<<p_clinet->file_inf.totalBytes<<qint64((outBlock.size() - sizeof(qint64)*2));
 
     //发送完头数据后剩余数据的大小
-    p_clinet->file_inf.bytesToWrite = c_totalBytes - p_clinet->clientConnection->write(outBlock);
+    p_clinet->file_inf.bytesToWrite = p_clinet->file_inf.totalBytes - p_clinet->clientConnection->write(outBlock);
 
-    //ui->clientStatusLabel->setText(tr("已连接"));
     outBlock.resize(0);
 }
 
@@ -204,12 +206,14 @@ void MainWindow::sendFileBody(qint64 numBytes)
         if(file_clinet_list.at(i)->clientConnection == clientConnection){
 
             p_clinet=file_clinet_list.at(i);
+            qDebug() << "found clinet ";
         }
 
     }
-
     //已经发送数据的大小
     p_clinet->file_inf.bytesWritten += (int)numBytes;
+
+    //qDebug() << "bytesWritten="<< p_clinet->file_inf.bytesWritten;
 
     if(p_clinet->file_inf.bytesToWrite > 0) //如果已经发送了数据
     {
@@ -233,10 +237,11 @@ void MainWindow::sendFileBody(qint64 numBytes)
 
     if(p_clinet->file_inf.bytesWritten == p_clinet->file_inf.totalBytes) //发送完毕
     {
-       ui->textBrowser->append("传送文件成功");
+       //ui->textBrowser->append("传送文件成功");
        p_clinet->file_inf.localFile->close();
        p_clinet->clientConnection->close();
        qDebug() << "传送文件成功";
+       file_clinet_list.removeAt(file_clinet_list.indexOf(p_clinet));
     }
 }
 
@@ -296,6 +301,11 @@ void MainWindow::send_init_file()
     //我们获取已经建立的连接的子套接字
 
     struct m_client * p_clinet = new  struct m_client;
+
+    p_clinet->file_inf.bytesToWrite = 0;
+    p_clinet->file_inf.bytesWritten = 0;
+    p_clinet->file_inf.totalBytes = 0;
+    p_clinet->file_inf.down_status = true;
 
     p_clinet->clientConnection = tcp_file_server->nextPendingConnection();
 
