@@ -8,6 +8,7 @@ enum TABLE_POINT{
     ID_POINT,
     IP_POINT,
     HD_POINT,
+    CPU_POINT,
     TIME_POINT,
     VER_POINT
 
@@ -23,6 +24,11 @@ MainWindow::MainWindow(QWidget *parent) :
     blockSize = 0;
     verison = 0;
     loadSize = 4*1024;
+
+    ui->tableWidget->setColumnWidth(CHECK_POINT, 40);
+    ui->tableWidget->setColumnWidth(ID_POINT, 55);
+    ui->tableWidget->setColumnWidth(IP_POINT, 100);
+    ui->tableWidget->setColumnWidth(HD_POINT, 200);
 
      timer_down = new QTimer(this);
      connect( timer_down, SIGNAL( timeout() ), this, SLOT( auto_scanf_down() ) );
@@ -274,6 +280,10 @@ void MainWindow::send_init_message()
         ui->textBrowser->append(msg_str);
         msg_str.clear();
 
+        msg_str.sprintf("%x",  p_clinet->clientConnection);
+        p_clinet->id = msg_str;
+        msg_str.clear();
+
         msg_str.sprintf("<init_msg id=\"%x\" now_verison=\"%d\"></init_msg>", p_clinet->clientConnection, 2);
         QByteArray ba = msg_str.toLatin1();
         sendMessage(p_clinet->clientConnection, ba.data());
@@ -380,8 +390,8 @@ void MainWindow::readMessage(QTcpSocket * socket)
 {
 
     QDataStream in(socket);
-    char data[100] = {0};
-    uint8_t addr;
+    char data[1024] = {0};
+
 
     in.setVersion(QDataStream::Qt_5_7);
 
@@ -407,7 +417,6 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
     qDebug()<<"blocksize" <<blockSize;
 
-
     //将接收到的数据存放到变量中
 
     char jiemi[1024] = {0};
@@ -415,7 +424,7 @@ void MainWindow::readMessage(QTcpSocket * socket)
     //解密
     aes->OnAesUncrypt((LPVOID)data, (DWORD)sizeof(char)*(blockSize-(int)sizeof(quint16)),(LPVOID)jiemi); //进行解密
 
-    for(int i=0; i<32; i++) qDebug("# %x", data[i]);
+    //for(int i=0; i<32; i++) qDebug("# %x", data[i]);
 
     qDebug()<<"un size" << (DWORD)sizeof(char)*(blockSize-(int)sizeof(quint16));
 
@@ -424,13 +433,73 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
     blockSize = 0;
 
-   addr =  get_data_toaddr(jiemi);
-   email_data(jiemi, addr);
+    ui->textBrowser->append(QString(QLatin1String(jiemi)));
+
+   //addr =  get_data_toaddr(jiemi);
+  // email_data(jiemi, addr);
+    qDebug() << "check " << strlen(jiemi) << jiemi[strlen(jiemi) -1];
+
+
+    do_cmd(QString(QLatin1String(jiemi)));
 
 
 }
 
 
+void MainWindow::do_cmd(QString cmd)
+{
+
+   QDomDocument xml;
+   xml.setContent(cmd);
+
+   QDomElement rootnode = xml.documentElement();
+
+   if(rootnode.tagName() == "bd_info"){
+
+       prase_bd_info(rootnode);
+
+   }
+
+
+}
+
+
+void MainWindow::prase_bd_info( QDomElement rootnode)
+{
+
+    QString cpu_info,
+            hd_info,
+            client_id;
+
+    client_id = rootnode.attributeNode("id").value();
+    cpu_info  = rootnode.attributeNode("cpu_info").value();
+    hd_info   = rootnode.attributeNode("disk_space").value();
+
+    ui->textBrowser->append(cpu_info + "  " + hd_info);
+
+    for(int i=0; i<ui->tableWidget->rowCount(); i++){
+
+        if(ui->tableWidget->item(i, ID_POINT)->text() == client_id){
+
+            ui->tableWidget->setItem(i, HD_POINT, new QTableWidgetItem(hd_info));
+            ui->tableWidget->setItem(i, CPU_POINT, new QTableWidgetItem(cpu_info));
+
+        }
+    }
+
+
+
+}
+
+int MainWindow::find_msg_clinet_point(QString id)
+{
+    for(int i=0; i<msg_clinet_list.size(); i++){
+
+        if(msg_clinet_list.at(i)->id == id)return i;
+    }
+
+    return -1;
+}
 
 void MainWindow::email_data(char * data, uint8_t addr)
 {
@@ -449,11 +518,11 @@ void MainWindow::email_data(char * data, uint8_t addr)
         /*发送给指定clinet*/
         for(int i=0; i<msg_clinet_list.size(); i++){
 
-            if(msg_clinet_list.at(i)->id == addr){
+            //if(msg_clinet_list.at(i)->id == addr){
 
-                sendMessage(msg_clinet_list.at(i)->clientConnection, data);
+               // sendMessage(msg_clinet_list.at(i)->clientConnection, data);
 
-            }
+           // }
 
         }
 

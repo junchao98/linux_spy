@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>773</width>
+    <width>898</width>
     <height>622</height>
    </rect>
   </property>
@@ -52,7 +52,7 @@
      <rect>
       <x>20</x>
       <y>90</y>
-      <width>721</width>
+      <width>871</width>
       <height>261</height>
      </rect>
     </property>
@@ -74,6 +74,11 @@
     <column>
      <property name="text">
       <string>磁盘信息</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>CPU info</string>
      </property>
     </column>
     <column>
@@ -119,7 +124,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>773</width>
+     <width>898</width>
      <height>23</height>
     </rect>
    </property>
