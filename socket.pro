@@ -30,13 +30,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     qt_aes.cpp \
     msg_core/list.c \
-    msg_core/msg_core.c
+    msg_core/msg_core.c \
+    xml.cpp
 
 HEADERS  += mainwindow.h \
     qt_aes.h \
     msg_core/common.h \
     msg_core/list.h \
     msg_core/msg_core.h \
-    msg_core/sensor_com.h
+    msg_core/sensor_com.h \
+    xml.h
 
 FORMS    += mainwindow.ui
