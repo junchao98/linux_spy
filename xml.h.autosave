@@ -38,7 +38,7 @@ private:
 
     void prase_group_conf(QDomElement child_element);
     void prase_down_conf(QDomElement child_element);
-    QDomDocument document;
+    
     QString xml_path;
 
 
