@@ -30,15 +30,16 @@ public:
     };
 
     struct _server_conf *server_conf;
-
+    struct _verison_inf *v_inf = new struct _verison_inf;
 
    void  read_conf(QString path);
+   void  add_new_verison(void);
 
 private:
 
     void prase_group_conf(QDomElement child_element);
     void prase_down_conf(QDomElement child_element);
-    QDomDocument document;
+
     QString xml_path;
 
 
