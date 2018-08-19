@@ -671,3 +671,33 @@ void MainWindow::on_listView_clicked(const QModelIndex &index)
 
     ui->lineEdit_group_id->setText(str);
 }
+
+void MainWindow::on_pushButton_send_file_clicked()
+{
+
+    QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.*)");
+
+    qDebug() << path;
+
+    return;
+
+    if(file_clinet_list.size() == 0)return;
+
+    for(int i=0; i<file_clinet_list.size(); i++){
+
+        if(file_clinet_list.at(i)->file_inf.down_status){
+            sendFile(file_clinet_list.at(i), path);
+            file_clinet_list.at(i)->file_inf.down_status = false;
+
+        }
+
+
+    }
+
+
+
+}
+
+
+
+

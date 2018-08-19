@@ -54,9 +54,9 @@ public:
 
     struct m_client{
 
-        QString id ;
+         QString id ;
          struct transfer_inf file_inf;
-        QTcpSocket *clientConnection;
+         QTcpSocket *clientConnection;
     };
 
 
@@ -103,6 +103,8 @@ private slots:
     void on_pushButton_new_verison_clicked();
 
     void on_listView_clicked(const QModelIndex &index);
+
+    void on_pushButton_send_file_clicked();
 
 private:
     Ui::MainWindow *ui;
