@@ -32,7 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setColumnWidth(HD_POINT, 200);
 
 
-    //read_conf();
+    xml_conf->read_conf("d:/xml.conf");
+
+    qDebug() << "max_down "<<xml_conf->server_conf->max_down;
 
      timer_down = new QTimer(this);
      connect( timer_down, SIGNAL( timeout() ), this, SLOT( auto_scanf_down() ) );

@@ -1,9 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
+#include "qt_aes.h"
+#include "xml.h"
+
 #include <QMainWindow>
 #include <QtNetwork>
-#include "qt_aes.h"
 #include <QTimer>
 #include <qlist.h>
 
@@ -63,6 +66,8 @@ public:
       int c_user_num;
 
       TAesClass *aes = new TAesClass;
+      xml * xml_conf = new xml;
+
 
        void readMessage(QTcpSocket * socket);  //接收数据
        void sendMessage(QTcpSocket * socket, char* s_data);

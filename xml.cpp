@@ -1,16 +1,17 @@
 #include "xml.h"
 
 
-void*  xml::read_conf(QString path)
+void  xml::read_conf(QString path)
  {
 
-     server_conf = (struct _server_conf *)malloc(sizeof(struct _server_conf)) ;
+     //server_conf = (struct _server_conf *)malloc(sizeof(struct _server_conf)) ;
+       server_conf = new struct _server_conf;
 
     QFile file(path);
        if(!file.open(QFile::ReadOnly | QFile::Text))
        {
           qDebug() << "open error";
-           return NULL;
+           return ;
        }
 
     QDomDocument document;
@@ -20,7 +21,7 @@ void*  xml::read_conf(QString path)
     {
         qDebug() << "prase error";
 
-             return NULL;
+             return ;
      }
 
 
@@ -47,8 +48,6 @@ void*  xml::read_conf(QString path)
 
 
     file.close();
-
-    return server_conf;
 
  }
 
