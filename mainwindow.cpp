@@ -638,9 +638,14 @@ void MainWindow::on_pushButton_new_verison_clicked()
     }
 
 
-     QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.sh)");
+     //QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.sh)");
+
+   xml_conf->v_inf->file_path = "test path";
+   xml_conf->v_inf->group_id = "5";
+   xml_conf->v_inf->verison = "4";
 
 
+   xml_conf->add_new_verison();
 
 
 }
