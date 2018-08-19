@@ -5,6 +5,7 @@
 
 enum TABLE_POINT{
     CHECK_POINT = 0,
+    GROUPID_POINT,
     ID_POINT,
     IP_POINT,
     HD_POINT,
@@ -29,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setColumnWidth(ID_POINT, 55);
     ui->tableWidget->setColumnWidth(IP_POINT, 100);
     ui->tableWidget->setColumnWidth(HD_POINT, 200);
+
+
+    //read_conf();
 
      timer_down = new QTimer(this);
      connect( timer_down, SIGNAL( timeout() ), this, SLOT( auto_scanf_down() ) );
@@ -66,6 +70,8 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+
 
 void MainWindow::auto_scanf_down(void)
 {

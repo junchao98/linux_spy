@@ -6,6 +6,7 @@
 #include "qt_aes.h"
 #include <QTimer>
 #include <qlist.h>
+
 #include <QtXml>
 #include <QtXml/QDomDocument>
 
@@ -47,6 +48,7 @@ public:
         bool down_status;
     };
 
+
     struct m_client{
 
         QString id ;
@@ -70,6 +72,10 @@ public:
 
        QList<struct m_client *> msg_clinet_list;
        QList<struct m_client *> file_clinet_list;
+
+
+       /*Yin版本发布系统*/
+
        int find_msg_clinet_point(QString id);
 
         void email_data(char * data, uint8_t addr);
@@ -100,6 +106,10 @@ private:
 
     QString message;  //存放从服务器接收到的字符串
     quint16 blockSize; //存放文件的大小信息
+
+    //void read_conf(void);
+
+   // void prase_group_conf(QDomElement child_element);
 
 
 };
