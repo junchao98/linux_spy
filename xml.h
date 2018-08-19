@@ -31,14 +31,13 @@ public:
 
     struct _server_conf *server_conf;
 
+    void*  read_conf(QString path);
 
-   void*  read_conf(QString path);
 
 private:
 
     void prase_group_conf(QDomElement child_element);
     void prase_down_conf(QDomElement child_element);
-
 
 };
 
