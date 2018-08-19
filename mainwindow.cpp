@@ -41,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setColumnWidth(HD_POINT, 200);
 
 
+    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+    QString str = time.toString("h:m:s ap  " ); //设置显示格式
+    ui->textBrowser->append(str + "读取配置文件");
+
     xml_conf->read_conf("d:/lus_server_conf.xml");
     show_server_conf();
 
@@ -86,7 +90,7 @@ MainWindow::~MainWindow()
 void MainWindow:: show_server_conf(void)
 {
 
-    ui->label_max_down->setText(xml_conf->server_conf->max_down);
+    ui->lineEdit_max_down->setText(xml_conf->server_conf->max_down);
 
      // xml._server_conf ;
 
@@ -637,15 +641,33 @@ void MainWindow::on_pushButton_new_verison_clicked()
             return ;
     }
 
+    if(ui->lineEdit_group_id->text().isEmpty()){
 
-     //QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.sh)");
+            QMessageBox::information(this,"错误","请输入组ID");
+            return ;
+    }
 
-   xml_conf->v_inf->file_path = "test path";
-   xml_conf->v_inf->group_id = "5";
-   xml_conf->v_inf->verison = "4";
+
+   QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.sh)");
+
+   xml_conf->v_inf->file_path = path;
+   xml_conf->v_inf->group_id = ui->lineEdit_group_id->text();
+   xml_conf->v_inf->verison = ui->lineEdit_verison_num->text();
 
 
    xml_conf->add_new_verison();
 
 
+}
+
+void MainWindow::on_listView_clicked(const QModelIndex &index)
+{
+
+    QString str =  ui->listView->model()->index(index.row(), 0).data().toString();
+
+    str = str.left(str.indexOf(" "));
+
+    str = str.right(str.size() - str.indexOf(":") - 1);
+
+    ui->lineEdit_group_id->setText(str);
 }
