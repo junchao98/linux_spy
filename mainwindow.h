@@ -75,6 +75,8 @@ public:
        void do_cmd(QString cmd);
        void prase_bd_info( QDomElement rootnode);
 
+       void show_server_conf(void);
+
        QList<struct m_client *> msg_clinet_list;
        QList<struct m_client *> file_clinet_list;
 
@@ -97,6 +99,8 @@ private slots:
     void sendFileBody(qint64 numBytes);
     void auto_scanf_down(void);
 
+
+    void on_pushButton_new_verison_clicked();
 
 private:
     Ui::MainWindow *ui;

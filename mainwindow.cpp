@@ -1,7 +1,16 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <QListView>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QModelIndex>
 
+#include <QFile>
+#include <QDirIterator>
+#include <QFileDialog>
+
+#include <QMessageBox>
 
 enum TABLE_POINT{
     CHECK_POINT = 0,
@@ -32,7 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setColumnWidth(HD_POINT, 200);
 
 
-    xml_conf->read_conf("d:/xml.conf");
+    xml_conf->read_conf("d:/lus_server_conf.xml");
+    show_server_conf();
 
     qDebug() << "max_down "<<xml_conf->server_conf->max_down;
 
@@ -73,16 +83,53 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow:: show_server_conf(void)
+{
+
+    ui->label_max_down->setText(xml_conf->server_conf->max_down);
+
+     // xml._server_conf ;
+
+   QStandardItemModel * standardItemModel = new QStandardItemModel(this);
+
+        QStringList strList;
+
+        for(int i=0; i < xml_conf->server_conf->verison_inf_list.count(); i++){
+
+            strList.append("组ID:"+ xml_conf->server_conf->verison_inf_list.at(i)->group_id + "  版本号:" + xml_conf->server_conf->verison_inf_list.at(i)->verison);
+            ui->comboBox_group->addItem("组ID:"+ xml_conf->server_conf->verison_inf_list.at(i)->group_id);
+        }
+
+        int nCount = strList.size();
+        for(int i = 0; i < nCount; i++)
+        {
+            QString string = static_cast<QString>(strList.at(i));
+            QStandardItem *item = new QStandardItem(string);
+            if(i % 2 == 1)
+            {
+                QLinearGradient linearGrad(QPointF(0, 0), QPointF(200, 200));
+                linearGrad.setColorAt(0, Qt::darkGreen);
+                linearGrad.setColorAt(1, Qt::yellow);
+                QBrush brush(linearGrad);
+                item->setBackground(brush);
+            }
+            standardItemModel->appendRow(item);
+        }
+        ui->listView->setModel(standardItemModel);
+        ui->listView->setFixedSize(200,300);
+
+
+}
 
 
 void MainWindow::auto_scanf_down(void)
 {
 
+     /*@添加最大下载数限定*/
     /*没有等待下载的client*/
     if(file_clinet_list.size() == 0)return;
 
     for(int i=0; i<file_clinet_list.size(); i++){
-
         if(file_clinet_list.at(i)->file_inf.down_status){
             sendFile(file_clinet_list.at(i), "/home/lornyin/work/lus/update.tar.bz2");
             file_clinet_list.at(i)->file_inf.down_status = false;
@@ -580,3 +627,20 @@ void MainWindow::m_disconnect()
 
 
 
+
+void MainWindow::on_pushButton_new_verison_clicked()
+{
+
+    if(ui->lineEdit_verison_num->text().isEmpty()){
+
+            QMessageBox::information(this,"错误","请输入版本号");
+            return ;
+    }
+
+
+     QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.sh)");
+
+
+
+
+}
