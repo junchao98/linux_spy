@@ -45,7 +45,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QString str = time.toString("h:m:s ap  " ); //设置显示格式
     ui->textBrowser->append(str + "读取配置文件");
 
-    xml_conf->read_conf("d:/lus_server_conf.xml");
+    //xml_conf->read_conf("d:/lus_server_conf.xml");
+    xml_conf->read_conf("/home/lornyin/work/lus/lus_server_conf.xml");
     show_server_conf();
 
     qDebug() << "max_down "<<xml_conf->server_conf->max_down;
