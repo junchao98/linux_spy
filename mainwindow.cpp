@@ -24,6 +24,12 @@ enum TABLE_POINT{
 
 };
 
+enum DOWN_TYPE{
+
+    ST_KERNEL = 0,
+    ST_FILE
+};
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -135,8 +141,10 @@ void MainWindow::auto_scanf_down(void)
     if(file_clinet_list.size() == 0)return;
 
     for(int i=0; i<file_clinet_list.size(); i++){
-        if(file_clinet_list.at(i)->file_inf.down_status){
-            sendFile(file_clinet_list.at(i), "/home/lornyin/work/lus/update.tar.bz2");
+        if(file_clinet_list.at(i)->file_inf.down_status == ST_KERNEL){
+
+            sendFile(file_clinet_list.at(i), file_clinet_list.at(i)->down_info.file_path);
+
             file_clinet_list.at(i)->file_inf.down_status = false;
 
         }
@@ -390,11 +398,19 @@ void MainWindow::send_init_file()
      /*a new device online*/
     if( p_clinet->clientConnection != NULL){
 
-        //sendFile(p_clinet, "d://test.jpg");
+        if(down_info.status){
+
+            p_clinet->down_info = down_info;
+            down_info.status = 0;
+
+        }else{
+
+            qDebug() << " down_info is unavailable";
+            return;
+        }
+
 
         file_clinet_list.append(p_clinet);
-
-        //show_client(p_clinet);
 
     }else{
 
@@ -405,10 +421,6 @@ void MainWindow::send_init_file()
 
 
 }
-
-
-
-
 
 
 void MainWindow::show_client(struct m_client * p_clinet )
@@ -495,16 +507,16 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
    //addr =  get_data_toaddr(jiemi);
   // email_data(jiemi, addr);
-    qDebug() << "check " << strlen(jiemi) << jiemi[strlen(jiemi) -1];
+   // qDebug() << "check " << strlen(jiemi) << jiemi[strlen(jiemi) -1];
 
 
-    do_cmd(QString(QLatin1String(jiemi)));
+    do_cmd(QString(QLatin1String(jiemi)), socket);
 
 
 }
 
 
-void MainWindow::do_cmd(QString cmd)
+void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 {
 
    QDomDocument xml;
@@ -514,7 +526,33 @@ void MainWindow::do_cmd(QString cmd)
 
    if(rootnode.tagName() == "bd_info"){
 
-       prase_bd_info(rootnode);
+       prase_bd_info(rootnode, socket);
+
+   }
+
+   if(rootnode.tagName() == "requst"){
+
+       if(rootnode.attributeNode("type").value() == "kernel_down"){
+
+            down_info.type = ST_KERNEL;
+
+            int point = find_msg_clinet_point(rootnode.attributeNode("group_id").value());
+
+
+            for(int i=0; i<xml_conf-> server_conf->verison_inf_list.size(); i++){
+
+                if(xml_conf-> server_conf->verison_inf_list.at(i)->group_id == msg_clinet_list.at(point)->group_id){
+
+                    down_info.file_path = xml_conf-> server_conf->verison_inf_list.at(i)->file_path;
+                    down_info.status = 1;
+
+
+                    sendMessage(msg_clinet_list.at(point)->clientConnection,  "<send_file type=\"kernel\" md5=\"\" />");
+                }
+
+            }
+
+       }
 
    }
 
@@ -522,7 +560,7 @@ void MainWindow::do_cmd(QString cmd)
 }
 
 
-void MainWindow::prase_bd_info( QDomElement rootnode)
+void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
 {
 
     QString cpu_info,
@@ -532,6 +570,19 @@ void MainWindow::prase_bd_info( QDomElement rootnode)
     client_id = rootnode.attributeNode("id").value();
     cpu_info  = rootnode.attributeNode("cpu_info").value();
     hd_info   = rootnode.attributeNode("disk_space").value();
+
+
+    for(int i=0; i<msg_clinet_list.size(); i++){
+
+        if(msg_clinet_list.at(i)->clientConnection == socket){
+
+            msg_clinet_list.at(i)->group_id = rootnode.attributeNode("group_id").value();
+            qDebug()<<"get group id" << msg_clinet_list.at(i)->group_id;
+            break;
+        }
+
+    }
+
 
     ui->textBrowser->append(cpu_info + "  " + hd_info);
 
@@ -624,13 +675,6 @@ void MainWindow::m_disconnect()
 
 
 
-
-
-
-
-
-
-
 void MainWindow::on_pushButton_new_verison_clicked()
 {
 
@@ -675,13 +719,15 @@ void MainWindow::on_pushButton_send_file_clicked()
 {
 
     //QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.*)");
-
+    QString path;
     //qDebug() << path;
 
     //return;
     QString cmd;
 
-    cmd="<send_file ";
+    cmd =  "<send_file ";
+    cmd += " type=\"file\"";
+    cmd += " md5=\" \">";
 
     for(int i=0; i<ui->tableWidget->rowCount(); i++){
 
@@ -691,6 +737,13 @@ void MainWindow::on_pushButton_send_file_clicked()
                     QString str_id =    ui->tableWidget->item(i, ID_POINT)->text();
                     qDebug() << "int id" << str_id;
                     int id = find_msg_clinet_point(str_id);
+
+                    down_info.file_path = path;
+                    down_info.type = ST_FILE;
+                    down_info.status = 1;
+
+                    ui->textBrowser->append(cmd);
+
                     sendMessage( msg_clinet_list.at(id)->clientConnection, ch_data);
 
            }

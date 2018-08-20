@@ -52,13 +52,34 @@ public:
     };
 
 
+    struct _down_info{
+
+        int status;
+        int type;
+        QString file_path;
+    };
+
     struct m_client{
 
          QString id ;
+         QString group_id;
+
+         struct _bd_info bd_info;
          struct transfer_inf file_inf;
+         struct _down_info down_info;
+
          QTcpSocket *clientConnection;
     };
 
+    struct _bd_info{
+
+        QString cpu_info,
+                hd_info,
+                client_id;
+
+    };
+
+     struct _down_info down_info;
 
       QTimer *timer_down;
 
@@ -72,8 +93,8 @@ public:
        void readMessage(QTcpSocket * socket);  //接收数据
        void sendMessage(QTcpSocket * socket, char* s_data);
        void sendFile(struct m_client * p_clinet, QString fileName);
-       void do_cmd(QString cmd);
-       void prase_bd_info( QDomElement rootnode);
+       void do_cmd(QString cmd, QTcpSocket * socket);
+       void prase_bd_info( QDomElement rootnode, QTcpSocket * socket);
 
        void show_server_conf(void);
 
