@@ -45,8 +45,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QString str = time.toString("h:m:s ap  " ); //设置显示格式
     ui->textBrowser->append(str + "读取配置文件");
 
-    //xml_conf->read_conf("d:/lus_server_conf.xml");
-    xml_conf->read_conf("/home/lornyin/work/lus/lus_server_conf.xml");
+    xml_conf->read_conf("d:/lus_server_conf.xml");
+    //xml_conf->read_conf("/home/lornyin/work/lus/lus_server_conf.xml");
     show_server_conf();
 
     qDebug() << "max_down "<<xml_conf->server_conf->max_down;
@@ -418,8 +418,6 @@ void MainWindow::show_client(struct m_client * p_clinet )
 
     inf_str.sprintf("%x", p_clinet->clientConnection);
 
-
-
     ui->tableWidget->insertRow(ui->tableWidget->rowCount());
     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, ID_POINT, new QTableWidgetItem(inf_str));
 
@@ -676,12 +674,27 @@ void MainWindow::on_listView_clicked(const QModelIndex &index)
 void MainWindow::on_pushButton_send_file_clicked()
 {
 
-    QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.*)");
+    //QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.*)");
 
-    qDebug() << path;
+    //qDebug() << path;
 
-    return;
+    //return;
 
+    for(int i=0; i<ui->tableWidget->rowCount(); i++){
+
+           if(ui->tableWidget->item(i, CHECK_POINT)->checkState() == Qt::Checked){
+
+
+                int client_int =   ui->tableWidget->item(i, ID_POINT)->text().toInt();
+                sendMessage((QTcpSocket * )client_int, "check test");
+
+           }
+
+
+    }
+
+
+ /*
     if(file_clinet_list.size() == 0)return;
 
     for(int i=0; i<file_clinet_list.size(); i++){
@@ -695,7 +708,7 @@ void MainWindow::on_pushButton_send_file_clicked()
 
     }
 
-
+    */
 
 }
 
