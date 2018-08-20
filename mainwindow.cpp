@@ -679,14 +679,19 @@ void MainWindow::on_pushButton_send_file_clicked()
     //qDebug() << path;
 
     //return;
+    QString cmd;
+
+    cmd="<send_file ";
 
     for(int i=0; i<ui->tableWidget->rowCount(); i++){
 
            if(ui->tableWidget->item(i, CHECK_POINT)->checkState() == Qt::Checked){
 
 
-                int client_int =   ui->tableWidget->item(i, ID_POINT)->text().toInt();
-                sendMessage((QTcpSocket * )client_int, "check test");
+                    QString str_id =    ui->tableWidget->item(i, ID_POINT)->text();
+                    qDebug() << "int id" << str_id;
+                    int id = find_msg_clinet_point(str_id);
+                    sendMessage( msg_clinet_list.at(id)->clientConnection, ch_data);
 
            }
 
