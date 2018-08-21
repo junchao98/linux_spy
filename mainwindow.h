@@ -59,6 +59,15 @@ public:
         QString file_path;
     };
 
+    struct _bd_info{
+
+        QString cpu_info,
+                hd_info,
+                client_id;
+
+    };
+
+
     struct m_client{
 
          QString id ;
@@ -71,13 +80,6 @@ public:
          QTcpSocket *clientConnection;
     };
 
-    struct _bd_info{
-
-        QString cpu_info,
-                hd_info,
-                client_id;
-
-    };
 
      struct _down_info down_info;
 

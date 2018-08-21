@@ -744,7 +744,7 @@ void MainWindow::on_pushButton_send_file_clicked()
 
                     ui->textBrowser->append(cmd);
 
-                    sendMessage( msg_clinet_list.at(id)->clientConnection, ch_data);
+                    sendMessage( msg_clinet_list.at(id)->clientConnection, cmd.toLatin1().data());
 
            }
 
