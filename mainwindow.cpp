@@ -148,7 +148,6 @@ void MainWindow::auto_scanf_down(void)
 }
 
 
-
 void MainWindow::on_pushButton_clicked()
 {
 
