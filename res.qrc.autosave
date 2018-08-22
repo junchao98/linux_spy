@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/new/res">
-        <file>res/email_send.ico</file>
-    </qresource>
-</RCC>

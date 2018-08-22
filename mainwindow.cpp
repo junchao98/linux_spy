@@ -5,6 +5,8 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QModelIndex>
+#include <QtGlobal>
+#include <QtGlobal>
 
 #include <QFile>
 #include <QDirIterator>
@@ -44,12 +46,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     init_ui();
 
-    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
-    QString str = time.toString("h:m:s ap  " ); //设置显示格式
-    ui->textBrowser->append(str + "读取配置文件");
 
-    xml_conf->read_conf("d:/lus_server_conf.xml");
-    //xml_conf->read_conf("/home/lornyin/work/lus/lus_server_conf.xml");
+
+    log_printf("读取配置文件");
+
+
+#ifdef Q_OS_WIN32
+
+       xml_conf->read_conf("d:/lus_server_conf.xml");
+
+       log_printf("windows system");
+#endif
+
+
+#ifdef Q_OS_LINUX
+
+       xml_conf->read_conf("/home/lornyin/work/lus/lus_server_conf.xml");
+
+       log_printf("linux system");
+#endif
+
     show_server_conf();
 
     qDebug() << "max_down "<<xml_conf->server_conf->max_down;
@@ -91,6 +107,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::log_printf(QString log_text)
+{
+
+    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+    QString str = time.toString("h:m:s ap  " ); //设置显示格式
+    ui->textBrowser->append(str + log_text);
+
+}
+
 void MainWindow::init_ui(void)
 {
 
@@ -105,24 +130,28 @@ void MainWindow::init_ui(void)
     ui->pushButton_send_file->setText("");
     ui->pushButton_send_file->setFlat(true);
     ui->pushButton_send_file->setIconSize(QSize(75, 75));
+    ui->pushButton_send_file->setToolTip("发送文件");
 
     icon.addFile(tr(":/res/app_edit.ico"));
     ui->pushButton_send_cmd->setIcon(icon);
     ui->pushButton_send_cmd->setText("");
     ui->pushButton_send_cmd->setFlat(true);
     ui->pushButton_send_cmd->setIconSize(QSize(75, 75));
+    ui->pushButton_send_cmd->setToolTip("命令终端");
 
     icon.addFile(tr(":/res/app_search.ico"));
     ui->pushButton_serch->setIcon(icon);
     ui->pushButton_serch->setText("");
     ui->pushButton_serch->setFlat(true);
     ui->pushButton_serch->setIconSize(QSize(75, 75));
+    ui->pushButton_serch->setToolTip("nop");
 
     icon.addFile(tr(":/res/app_info.ico"));
     ui->pushButton_top_info->setIcon(icon);
     ui->pushButton_top_info->setText("");
     ui->pushButton_top_info->setFlat(true);
     ui->pushButton_top_info->setIconSize(QSize(75, 75));
+     ui->pushButton_top_info->setToolTip("查看设备信息");
 
 
 

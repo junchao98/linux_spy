@@ -103,7 +103,7 @@ public:
        QList<struct m_client *> msg_clinet_list;
        QList<struct m_client *> file_clinet_list;
 
-
+       void log_printf(QString log_text);
        /*Yin版本发布系统*/
 
        int find_msg_clinet_point(QString id);
