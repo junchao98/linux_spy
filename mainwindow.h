@@ -48,14 +48,14 @@ public:
         qint64 totalBytes;  //数据总大小
         qint64 bytesWritten;  //已经发送数据大小
         qint64 bytesToWrite;   //剩余数据大小
-        bool down_status;
+
     };
 
 
     struct _down_info{
 
-        int status;
-        int type;
+        int status;     //是否执行下载
+        qint64 type;       //下载类型
         QString file_path;
     };
 
@@ -129,6 +129,8 @@ private slots:
 
     void on_pushButton_send_file_clicked();
 
+    void on_tableWidget_customContextMenuRequested(const QPoint &pos);
+
 private:
     Ui::MainWindow *ui;
 
@@ -146,6 +148,7 @@ private:
     //void read_conf(void);
 
    // void prase_group_conf(QDomElement child_element);
+    void init_ui(void);
 
 
 };

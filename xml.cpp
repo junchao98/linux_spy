@@ -8,6 +8,15 @@ void  xml::read_conf(QString path)
     QDomDocument document;
     xml_path = path;
 
+    QFileInfo fileInfo(path);
+
+    if(!fileInfo.isFile()){
+        /*配置文件不存在*/
+
+
+
+    }
+
     QFile file(path);
        if(!file.open(QFile::ReadOnly | QFile::Text))
        {
@@ -74,6 +83,9 @@ void xml::prase_group_conf(QDomElement child_element)
 
           info->verison = child_element.attributeNode("verison").value();
           qDebug()<<child_element.attributeNode("verison").value();
+
+          info->file_path = child_element.attributeNode("path").value();
+          qDebug()<<child_element.attributeNode("path").value();
 
           server_conf->verison_inf_list.append(info);
 

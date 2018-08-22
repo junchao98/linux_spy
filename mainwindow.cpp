@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QDirIterator>
 #include <QFileDialog>
+#include <QMenu>
 
 #include <QMessageBox>
 
@@ -41,11 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     verison = 0;
     loadSize = 4*1024;
 
-    ui->tableWidget->setColumnWidth(CHECK_POINT, 40);
-    ui->tableWidget->setColumnWidth(ID_POINT, 55);
-    ui->tableWidget->setColumnWidth(IP_POINT, 100);
-    ui->tableWidget->setColumnWidth(HD_POINT, 200);
-
+    init_ui();
 
     QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
     QString str = time.toString("h:m:s ap  " ); //设置显示格式
@@ -92,6 +89,44 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::init_ui(void)
+{
+
+    ui->tableWidget->setColumnWidth(CHECK_POINT, 40);
+    ui->tableWidget->setColumnWidth(ID_POINT, 55);
+    ui->tableWidget->setColumnWidth(IP_POINT, 100);
+    ui->tableWidget->setColumnWidth(HD_POINT, 200);
+
+    QIcon icon;
+    icon.addFile(tr(":/res/app_send.ico"));
+    ui->pushButton_send_file->setIcon(icon);
+    ui->pushButton_send_file->setText("");
+    ui->pushButton_send_file->setFlat(true);
+    ui->pushButton_send_file->setIconSize(QSize(75, 75));
+
+    icon.addFile(tr(":/res/app_edit.ico"));
+    ui->pushButton_send_cmd->setIcon(icon);
+    ui->pushButton_send_cmd->setText("");
+    ui->pushButton_send_cmd->setFlat(true);
+    ui->pushButton_send_cmd->setIconSize(QSize(75, 75));
+
+    icon.addFile(tr(":/res/app_search.ico"));
+    ui->pushButton_serch->setIcon(icon);
+    ui->pushButton_serch->setText("");
+    ui->pushButton_serch->setFlat(true);
+    ui->pushButton_serch->setIconSize(QSize(75, 75));
+
+    icon.addFile(tr(":/res/app_info.ico"));
+    ui->pushButton_top_info->setIcon(icon);
+    ui->pushButton_top_info->setText("");
+    ui->pushButton_top_info->setFlat(true);
+    ui->pushButton_top_info->setIconSize(QSize(75, 75));
+
+
+
+
 }
 
 void MainWindow:: show_server_conf(void)
@@ -141,11 +176,16 @@ void MainWindow::auto_scanf_down(void)
     if(file_clinet_list.size() == 0)return;
 
     for(int i=0; i<file_clinet_list.size(); i++){
-        if(file_clinet_list.at(i)->file_inf.down_status == ST_KERNEL){
+
+        qDebug()<<"file_inf.down_status: "<<file_clinet_list.at(i)->down_info.type;
+
+        if(file_clinet_list.at(i)->down_info.status == 1){
+
+            qDebug()<<"send file";
 
             sendFile(file_clinet_list.at(i), file_clinet_list.at(i)->down_info.file_path);
 
-            file_clinet_list.at(i)->file_inf.down_status = false;
+            file_clinet_list.at(i)->down_info.status  = 0;
 
         }
 
@@ -243,21 +283,38 @@ void MainWindow::sendFile(struct m_client * p_clinet, QString fileName)  //实�
    p_clinet->file_inf.totalBytes = file->size();
 
 
-   qDebug()<< "file size :" <<  p_clinet->file_inf.totalBytes;
+   //qDebug()<< "file size :" <<  p_clinet->file_inf.totalBytes;
 
     QDataStream sendOut(&outBlock,QIODevice::WriteOnly);
     sendOut.setVersion(QDataStream::Qt_4_6);
-    QString currentFileName = fileName.right(fileName.size()- fileName.lastIndexOf('/')-1);
 
-    //依次写入总大小信息空间，文件名大小信息空间，文件名
-    sendOut << qint64(0) << qint64(0) << currentFileName;
+    QString currentFileName;
+
+    if(fileName.indexOf('/') != -1){
+
+         currentFileName = fileName.right(fileName.size()- fileName.lastIndexOf('/')-1);
+
+    }else if(fileName.indexOf('\\') != -1){
+
+            qDebug() << "lastIndexOf" << fileName.lastIndexOf('\\');
+         currentFileName = fileName.right(fileName.size()- fileName.lastIndexOf('\\')-1);
+
+    }
+
+    qDebug() << "currentFileName " << currentFileName;
+    //依次写入文件类型、总大小信息空间、文件名大小信息空间、文件名
+    sendOut << qint64(0)<<qint64(0) << qint64(0) << currentFileName;
 
     //这里的总大小是文件名大小等信息和实际文件大小的总和
     p_clinet->file_inf.totalBytes += outBlock.size();
 
     sendOut.device()->seek(0);
-    //返回outBolock的开始，用实际的大小信息代替两个qint64(0)空间
-    sendOut<<p_clinet->file_inf.totalBytes<<qint64((outBlock.size() - sizeof(qint64)*2));
+
+
+    //返回outBolock的开始，用实际的大小信息代替3个qint64(0)空间
+    sendOut<<p_clinet->down_info.type <<p_clinet->file_inf.totalBytes <<qint64((outBlock.size() - sizeof(qint64)*3));
+
+    qDebug() << p_clinet->down_info.type <<" "<<p_clinet->file_inf.totalBytes << qint64((outBlock.size() - sizeof(qint64)*3));
 
     //发送完头数据后剩余数据的大小
     p_clinet->file_inf.bytesToWrite = p_clinet->file_inf.totalBytes - p_clinet->clientConnection->write(outBlock);
@@ -382,7 +439,7 @@ void MainWindow::send_init_file()
     p_clinet->file_inf.bytesToWrite = 0;
     p_clinet->file_inf.bytesWritten = 0;
     p_clinet->file_inf.totalBytes = 0;
-    p_clinet->file_inf.down_status = true;
+
 
     p_clinet->clientConnection = tcp_file_server->nextPendingConnection();
 
@@ -508,6 +565,7 @@ void MainWindow::readMessage(QTcpSocket * socket)
   // email_data(jiemi, addr);
    // qDebug() << "check " << strlen(jiemi) << jiemi[strlen(jiemi) -1];
 
+    qDebug() << "recive: " << QString(QLatin1String(jiemi));
 
     do_cmd(QString(QLatin1String(jiemi)), socket);
 
@@ -529,13 +587,22 @@ void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 
    }
 
+
    if(rootnode.tagName() == "requst"){
+
+
 
        if(rootnode.attributeNode("type").value() == "kernel_down"){
 
             down_info.type = ST_KERNEL;
 
-            int point = find_msg_clinet_point(rootnode.attributeNode("group_id").value());
+            int point = find_msg_clinet_point(rootnode.attributeNode("id").value());
+
+            if(point == -1){
+
+                qDebug()<<"not found clinet";
+                return;
+            }
 
 
             for(int i=0; i<xml_conf-> server_conf->verison_inf_list.size(); i++){
@@ -543,6 +610,8 @@ void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
                 if(xml_conf-> server_conf->verison_inf_list.at(i)->group_id == msg_clinet_list.at(point)->group_id){
 
                     down_info.file_path = xml_conf-> server_conf->verison_inf_list.at(i)->file_path;
+
+                    qDebug() << "file_path"<<down_info.file_path;
                     down_info.status = 1;
 
 
@@ -570,7 +639,7 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
     cpu_info  = rootnode.attributeNode("cpu_info").value();
     hd_info   = rootnode.attributeNode("disk_space").value();
 
-
+    qDebug() << "prase_bd_info";
     for(int i=0; i<msg_clinet_list.size(); i++){
 
         if(msg_clinet_list.at(i)->clientConnection == socket){
@@ -717,9 +786,9 @@ void MainWindow::on_listView_clicked(const QModelIndex &index)
 void MainWindow::on_pushButton_send_file_clicked()
 {
 
-    //QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.*)");
-    QString path;
-    //qDebug() << path;
+    QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.*)");
+
+    qDebug() << path;
 
     //return;
     QString cmd;
@@ -772,3 +841,18 @@ void MainWindow::on_pushButton_send_file_clicked()
 
 
 
+
+void MainWindow::on_tableWidget_customContextMenuRequested(const QPoint &pos)
+{
+
+    QMenu *cmenu = new QMenu(ui->tableWidget);
+    QAction *action1 = cmenu->addAction("Menu 1");
+    QAction *action2 = cmenu->addAction("Menu 2");
+    QAction *action3 = cmenu->addAction("Menu 3");
+    //connect(action1, SIGNAL(triggered(bool)), this, SLOT(on_menu_click(bool)));
+   // connect(action2, SIGNAL(triggered(bool)), this, SLOT(on_menu_click(bool)));
+   // connect(action3, SIGNAL(triggered(bool)), this, SLOT(on_menu_click(bool)));
+    cmenu->exec(QCursor::pos());
+
+
+}
