@@ -23,6 +23,7 @@ enum TABLE_POINT{
     HD_POINT,
     CPU_POINT,
     TIME_POINT,
+    PLACE_POINT,
     VER_POINT
 
 };
@@ -50,7 +51,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     log_printf("读取配置文件");
 
-
 #ifdef Q_OS_WIN32
 
        xml_conf->read_conf("d:/lus_server_conf.xml");
@@ -66,10 +66,12 @@ MainWindow::MainWindow(QWidget *parent) :
        log_printf("linux system");
 #endif
 
+
     show_server_conf();
 
     qDebug() << "max_down "<<xml_conf->server_conf->max_down;
 
+    /*下载列表扫描定时器*/
      timer_down = new QTimer(this);
      connect( timer_down, SIGNAL( timeout() ), this, SLOT( auto_scanf_down() ) );
      timer_down->start(5000);   //5s
@@ -97,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tcp_file_server,SIGNAL(newConnection()),this,SLOT(send_init_file()));
 
 
+    /*加密模块初始化*/
     UCHAR *p = aes_key;
     aes->InitializePrivateKey(16, p); //进行初始化
 
@@ -153,6 +156,9 @@ void MainWindow::init_ui(void)
     ui->pushButton_top_info->setIconSize(QSize(75, 75));
      ui->pushButton_top_info->setToolTip("查看设备信息");
 
+     QPixmap image_init;
+     image_init.load(":/res/about.png");
+     ui->label_about->setPixmap(image_init);
 
 
 
@@ -201,6 +207,7 @@ void MainWindow::auto_scanf_down(void)
 {
 
      /*@添加最大下载数限定*/
+
     /*没有等待下载的client*/
     if(file_clinet_list.size() == 0)return;
 
@@ -295,6 +302,7 @@ void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
 }
 
 
+
 void MainWindow::sendFile(struct m_client * p_clinet, QString fileName)  //实现文件大小等信息的发送
 {
 
@@ -352,7 +360,7 @@ void MainWindow::sendFile(struct m_client * p_clinet, QString fileName)  //实�
 }
 
 
-//更新进度条，实现文件的传送
+//实现文件的传送 自动调用
 void MainWindow::sendFileBody(qint64 numBytes)
 {
 
@@ -761,6 +769,8 @@ void MainWindow::m_disconnect()
               ui->textBrowser->append(msg_str);
 
              msg_clinet_list.removeAt(i);
+
+             /*@添加ui 清理工作*/
              break;
 
         }
@@ -771,7 +781,7 @@ void MainWindow::m_disconnect()
  }
 
 
-
+/*发布新的版本信息*/
 void MainWindow::on_pushButton_new_verison_clicked()
 {
 

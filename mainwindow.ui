@@ -63,6 +63,11 @@
     </column>
     <column>
      <property name="text">
+      <string>位置</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
       <string>设备版本号</string>
      </property>
     </column>
@@ -80,7 +85,7 @@
      <enum>QTabWidget::South</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -295,6 +300,19 @@
      <attribute name="title">
       <string>关于</string>
      </attribute>
+     <widget class="QLabel" name="label_about">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>888</width>
+        <height>195</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_send_file">
