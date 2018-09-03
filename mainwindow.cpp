@@ -445,9 +445,11 @@ void MainWindow::send_init_message()
         p_clinet->id = msg_str;
         msg_str.clear();
 
-        msg_str.sprintf("<init_msg id=\"%x\" now_verison=\"%d\"></init_msg>", p_clinet->clientConnection, 2);
+        /*发送动态ID到client*/
+        msg_str.sprintf("<init_msg id=\"%x\" now_verison=\"\"></init_msg>", p_clinet->clientConnection);
         QByteArray ba = msg_str.toLatin1();
         sendMessage(p_clinet->clientConnection, ba.data());
+
 
         c_user_num++;
         ui->label_user_num->setText(QString::number(c_user_num, 10));
@@ -670,11 +672,13 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
 
     QString cpu_info,
             hd_info,
-            client_id;
+            client_id,
+            group_id;
 
     client_id = rootnode.attributeNode("id").value();
     cpu_info  = rootnode.attributeNode("cpu_info").value();
     hd_info   = rootnode.attributeNode("disk_space").value();
+    group_id  = rootnode.attributeNode("group_id").value();
 
     qDebug() << "prase_bd_info";
     for(int i=0; i<msg_clinet_list.size(); i++){
@@ -701,7 +705,27 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
         }
     }
 
+    /*根据组ID 发送对应版本最新*/
 
+    int new_verison = -1;
+    for(int i=0; i<xml_conf->server_conf->verison_inf_list.size(); i++){
+
+        if(xml_conf->server_conf->verison_inf_list.at(i)->group_id== group_id){
+
+            new_verison = xml_conf->server_conf->verison_inf_list.at(i)->verison.toInt();
+            break;
+
+        }
+
+        qDebug()<<"未找到此组ID";
+
+        return;
+    }
+
+    QString msg_str;
+    msg_str.sprintf("<verison_info id=\"%x\" now_verison=\"%d\"></init_msg>", socket, new_verison);
+    QByteArray ba = msg_str.toLatin1();
+    sendMessage(socket, ba.data());
 
 }
 
@@ -715,6 +739,7 @@ int MainWindow::find_msg_clinet_point(QString id)
     return -1;
 }
 
+/*弃用*/
 void MainWindow::email_data(char * data, uint8_t addr)
 {
 

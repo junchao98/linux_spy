@@ -80,7 +80,6 @@ public:
          QTcpSocket *clientConnection;
     };
 
-
      struct _down_info down_info;
 
       QTimer *timer_down;
@@ -102,6 +101,7 @@ public:
 
        QList<struct m_client *> msg_clinet_list;
        QList<struct m_client *> file_clinet_list;
+
 
        void log_printf(QString log_text);
        /*Yin版本发布系统*/

@@ -10,7 +10,7 @@ class xml
 {
 
 
-public:
+private:
 
     struct _verison_inf{
 
@@ -19,6 +19,10 @@ public:
         QString verison;
 
     };
+
+
+public:
+
 
 
 
