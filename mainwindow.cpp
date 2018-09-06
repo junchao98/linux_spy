@@ -14,7 +14,10 @@
 #include <QMenu>
 
 #include <QMessageBox>
-
+/*
+ *1.下线处理
+ *
+ * */
 enum TABLE_POINT{
     CHECK_POINT = 0,
     GROUPID_POINT,
@@ -210,7 +213,7 @@ void MainWindow::auto_scanf_down(void)
 
     /*没有等待下载的client*/
     if(file_clinet_list.size() == 0)return;
-
+	
     for(int i=0; i<file_clinet_list.size(); i++){
 
         qDebug()<<"file_inf.down_status: "<<file_clinet_list.at(i)->down_info.type;
@@ -611,7 +614,7 @@ void MainWindow::readMessage(QTcpSocket * socket)
 
 }
 
-
+/*解析msg 的xml语句*/
 void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 {
 
@@ -666,7 +669,7 @@ void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 
 }
 
-
+/*解析这段状态xml*/
 void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
 {
 
@@ -910,7 +913,7 @@ void MainWindow::on_tableWidget_customContextMenuRequested(const QPoint &pos)
 {
 
     QMenu *cmenu = new QMenu(ui->tableWidget);
-    QAction *action1 = cmenu->addAction("Menu 1");
+    QAction *action1 = cmenu->addAction("menu 1");
     QAction *action2 = cmenu->addAction("Menu 2");
     QAction *action3 = cmenu->addAction("Menu 3");
     //connect(action1, SIGNAL(triggered(bool)), this, SLOT(on_menu_click(bool)));
