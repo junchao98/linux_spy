@@ -15,7 +15,7 @@
 
 
 #include "baidu_map.h"
-
+#include "send_file.h"
 
 extern "C"{
 
@@ -92,6 +92,8 @@ public:
 
       TAesClass *aes = new TAesClass;
       xml * xml_conf = new xml;
+      send_file *send = new send_file;
+
 
       baidu_map * map = new baidu_map;
 
@@ -115,6 +117,10 @@ public:
         void email_data(char * data, uint8_t addr);
         void show_client(struct m_client * p_clinet );
         int verison;
+
+        /*file*/
+
+        QString get_file_md5(QString str_path);
 
 private slots:
 

@@ -33,7 +33,7 @@ enum TABLE_POINT{
 
 enum DOWN_TYPE{
 
-    ST_KERNEL = 0,
+    ST_PACK = 0,
     ST_FILE
 };
 
@@ -59,8 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
        connect(map->manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(replyFinished(QNetworkReply*)));
 
        map->post_ip("");
-
-
 
     /*end test*/
 
@@ -667,7 +665,7 @@ void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 
        if(rootnode.attributeNode("type").value() == "kernel_down"){
 
-            down_info.type = ST_KERNEL;
+            down_info.type = ST_PACK;
 
             int point = find_msg_clinet_point(rootnode.attributeNode("id").value());
 
@@ -886,14 +884,28 @@ void MainWindow::on_pushButton_send_file_clicked()
 
     QString path=QFileDialog::getOpenFileName(this,"选择文件","./Phone","update(*.tar.bz2);;tel(*.*)");
 
+    send->exec();
+
     qDebug() << path;
 
-    //return;
+    if(path.isEmpty())return;
+
     QString cmd;
 
     cmd =  "<send_file ";
-    cmd += " type=\"file\"";
-    cmd += " md5=\" \">";
+    cmd += " type=\"" + send->file_mark.str_file_type + "\"";
+
+    if(send->file_mark.enabled_md5){
+
+         cmd += " md5=\""+  get_file_md5(path)+ "\">";
+
+    }else{
+
+         cmd += " md5=\"\">";
+
+    }
+
+    qDebug() << cmd;
 
     for(int i=0; i<ui->tableWidget->rowCount(); i++){
 
@@ -905,7 +917,7 @@ void MainWindow::on_pushButton_send_file_clicked()
                     int id = find_msg_clinet_point(str_id);
 
                     down_info.file_path = path;
-                    down_info.type = ST_FILE;
+                    down_info.type = send->file_mark.file_type;
                     down_info.status = 1;
 
                     ui->textBrowser->append(cmd);
@@ -917,27 +929,20 @@ void MainWindow::on_pushButton_send_file_clicked()
 
     }
 
-
- /*
-    if(file_clinet_list.size() == 0)return;
-
-    for(int i=0; i<file_clinet_list.size(); i++){
-
-        if(file_clinet_list.at(i)->file_inf.down_status){
-            sendFile(file_clinet_list.at(i), path);
-            file_clinet_list.at(i)->file_inf.down_status = false;
-
-        }
-
-
-    }
-
-    */
-
 }
 
 
+ QString MainWindow::get_file_md5(QString str_path)
+ {
 
+
+     QFile theFile(str_path);
+     theFile.open(QIODevice::ReadOnly);
+     QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+     theFile.close();
+    return ba.toHex().constData();
+
+ }
 
 
 void MainWindow::on_tableWidget_customContextMenuRequested(const QPoint &pos)

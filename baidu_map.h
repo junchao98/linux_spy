@@ -16,6 +16,8 @@ class baidu_map
 
 
 public:
+
+
     void baidu_map_init(void);
 
 	void prase_ip_info(QByteArray data);
