@@ -14,6 +14,9 @@
 #include <QtXml/QDomDocument>
 
 
+#include "baidu_map.h"
+
+
 extern "C"{
 
 #include "msg_core/common.h"
@@ -90,6 +93,7 @@ public:
       TAesClass *aes = new TAesClass;
       xml * xml_conf = new xml;
 
+      baidu_map * map = new baidu_map;
 
        void readMessage(QTcpSocket * socket);  //接收数据
        void sendMessage(QTcpSocket * socket, char* s_data);
@@ -130,6 +134,8 @@ private slots:
     void on_pushButton_send_file_clicked();
 
     void on_tableWidget_customContextMenuRequested(const QPoint &pos);
+
+    void replyFinished(QNetworkReply *reply);
 
 private:
     Ui::MainWindow *ui;

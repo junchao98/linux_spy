@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     qt_aes.cpp \
     msg_core/list.c \
     msg_core/msg_core.c \
-    xml.cpp
+    xml.cpp \
+    baidu_map.cpp
 
 HEADERS  += mainwindow.h \
     qt_aes.h \
@@ -39,7 +40,8 @@ HEADERS  += mainwindow.h \
     msg_core/list.h \
     msg_core/msg_core.h \
     msg_core/sensor_com.h \
-    xml.h
+    xml.h \
+    baidu_map.h
 
 FORMS    += mainwindow.ui
 

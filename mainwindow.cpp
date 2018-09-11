@@ -51,6 +51,19 @@ MainWindow::MainWindow(QWidget *parent) :
     init_ui();
 
 
+    /*test*/
+
+
+       map->baidu_map_init();
+
+       connect(map->manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(replyFinished(QNetworkReply*)));
+
+       map->post_ip("");
+
+
+
+    /*end test*/
+
 
     log_printf("读取配置文件");
 
@@ -70,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
 
-    show_server_conf();
+
 
     qDebug() << "max_down "<<xml_conf->server_conf->max_down;
 
@@ -112,6 +125,24 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+
+/*POST 返回信息接收*/
+void MainWindow::replyFinished(QNetworkReply *reply)
+{
+    QByteArray byte_data;
+    //QTextCodec *codec = QTextCodec::codecForName("utf8");
+    //QString all = codec->toUnicode(reply->readAll());
+
+
+     byte_data= reply->readAll();
+
+	map->prase_ip_info(byte_data);
+
+
+}
+
+
 
 void MainWindow::log_printf(QString log_text)
 {
