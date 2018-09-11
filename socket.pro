@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     msg_core/msg_core.c \
     xml.cpp \
     baidu_map.cpp \
-    send_file.cpp
+    send_file.cpp \
+    terminal_cmd.cpp
 
 HEADERS  += mainwindow.h \
     qt_aes.h \
@@ -43,10 +44,12 @@ HEADERS  += mainwindow.h \
     msg_core/sensor_com.h \
     xml.h \
     baidu_map.h \
-    send_file.h
+    send_file.h \
+    terminal_cmd.h
 
 FORMS    += mainwindow.ui \
-    send_file.ui
+    send_file.ui \
+    terminal_cmd.ui
 
 RESOURCES += \
     res.qrc

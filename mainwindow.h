@@ -16,6 +16,10 @@
 
 #include "baidu_map.h"
 #include "send_file.h"
+#include "terminal_cmd.h"
+
+
+
 
 extern "C"{
 
@@ -93,6 +97,7 @@ public:
       TAesClass *aes = new TAesClass;
       xml * xml_conf = new xml;
       send_file *send = new send_file;
+      terminal_cmd *terminal = new terminal_cmd;
 
 
       baidu_map * map = new baidu_map;
@@ -142,6 +147,8 @@ private slots:
     void on_tableWidget_customContextMenuRequested(const QPoint &pos);
 
     void replyFinished(QNetworkReply *reply);
+
+    void on_pushButton_send_cmd_clicked();
 
 private:
     Ui::MainWindow *ui;

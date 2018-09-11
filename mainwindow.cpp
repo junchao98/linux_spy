@@ -48,15 +48,19 @@ MainWindow::MainWindow(QWidget *parent) :
     verison = 0;
     loadSize = 4*1024;
 
+
+    map->baidu_map_init();
+
+    connect(map->manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(replyFinished(QNetworkReply*)));
+
+
+
     init_ui();
 
 
     /*test*/
 
-
-       map->baidu_map_init();
-
-       connect(map->manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(replyFinished(QNetworkReply*)));
+       terminal->show();
 
        map->post_ip("");
 
@@ -932,7 +936,7 @@ void MainWindow::on_pushButton_send_file_clicked()
 }
 
 
- QString MainWindow::get_file_md5(QString str_path)
+QString MainWindow::get_file_md5(QString str_path)
  {
 
 
@@ -959,3 +963,34 @@ void MainWindow::on_tableWidget_customContextMenuRequested(const QPoint &pos)
 
 
 }
+
+void MainWindow::on_pushButton_send_cmd_clicked()
+{
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
