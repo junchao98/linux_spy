@@ -54,15 +54,14 @@ MainWindow::MainWindow(QWidget *parent) :
     /*post 返回信息*/
     connect(map->manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(replyFinished(QNetworkReply*)));
 
-     connect(this, SIGNAL(terminal_bak(QString)),terminal,SLOT(get_terminal_bak(QString));
+    /*terminal 信号槽*/
+    connect(this, SIGNAL(terminal_bak(QString)),terminal,SLOT(get_terminal_bak(QString)));
+    connect(terminal, SIGNAL(terminal_cmd_ready(QString)),this,SLOT(send_terminal_cmd(QString)));
 
 
     init_ui();
 
-
     /*test*/
-
-       terminal->show();
 
        map->post_ip("");
 
@@ -138,7 +137,6 @@ void MainWindow::replyFinished(QNetworkReply *reply)
     //QTextCodec *codec = QTextCodec::codecForName("utf8");
     //QString all = codec->toUnicode(reply->readAll());
 
-
      byte_data= reply->readAll();
 
 	map->prase_ip_info(byte_data);
@@ -146,7 +144,29 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 
 }
 
+void MainWindow::send_terminal_cmd(QString str_cmd)
+{
 
+    qDebug() << "send termin cmd";
+
+    for(int i=0; i<ui->tableWidget->rowCount(); i++){
+
+           if(ui->tableWidget->item(i, CHECK_POINT)->checkState() == Qt::Checked){
+
+
+                    QString str_id =    ui->tableWidget->item(i, ID_POINT)->text();
+                    qDebug() << "int id" << str_id;
+                    int id = find_msg_clinet_point(str_id);
+
+                    ui->textBrowser->append(str_cmd);
+
+                    sendMessage( msg_clinet_list.at(id)->clientConnection, str_cmd.toLatin1().data());
+
+           }
+
+       }
+
+}
 
 void MainWindow::log_printf(QString log_text)
 {
@@ -976,7 +996,7 @@ void MainWindow::on_tableWidget_customContextMenuRequested(const QPoint &pos)
 void MainWindow::on_pushButton_send_cmd_clicked()
 {
 
-
+    terminal->show();
 
 
 

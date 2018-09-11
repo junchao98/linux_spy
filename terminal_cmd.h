@@ -17,13 +17,21 @@ public:
     explicit terminal_cmd(QWidget *parent = 0);
     ~terminal_cmd();
 
+    void mix_xml(QString str_cmd);
 
 protected:
     bool eventFilter(QObject *target, QEvent *event);//事件过滤器
 
+signals:
+
+    void terminal_cmd_ready(QString str);
+
 public slots:
 
-      get_terminal_bak(QString);
+    void get_terminal_bak(QString);
+
+
+private slots:
 
 
 private:

@@ -7,7 +7,9 @@ terminal_cmd::terminal_cmd(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->textEdit->installEventFilter(this);//设置完后自动调用其eventFilter函数
+    ui->lineEdit_cmd->installEventFilter(this);//设置完后自动调用其eventFilter函数
+
+
 
 }
 
@@ -18,7 +20,7 @@ terminal_cmd::~terminal_cmd()
 
 
 /*显示terminal 返回信息*/
-terminal_cmd::get_terminal_bak(QString str)
+void terminal_cmd::get_terminal_bak(QString str)
 {
 
     ui->textEdit->append(str);
@@ -28,14 +30,16 @@ terminal_cmd::get_terminal_bak(QString str)
 
 bool terminal_cmd::eventFilter(QObject *target, QEvent *event)
 {
-    if(target == ui->textEdit)
+    if(target == ui->lineEdit_cmd)
     {
         if(event->type() == QEvent::KeyPress)//回车键
         {
              QKeyEvent *k = static_cast<QKeyEvent *>(event);
              if(k->key() == Qt::Key_Return)
              {
-                 //on_send_clicked();
+
+                    mix_xml(ui->lineEdit_cmd->text());
+
                  qDebug() << "enter key";
                  return true;
              }
@@ -45,4 +49,15 @@ bool terminal_cmd::eventFilter(QObject *target, QEvent *event)
 }
 
 
+void terminal_cmd::mix_xml(QString str_cmd)
+{
+
+    QString str = "<term_cmd";
+
+    str += (" body=\"" + str_cmd + "\"");
+    str += "/>";
+
+    emit terminal_cmd_ready(str);
+
+}
 

@@ -171,7 +171,10 @@ private:
 
 
 signals:
-    terminal_bak(QString str);
+    void terminal_bak(QString str);
+
+public slots:
+    void send_terminal_cmd(QString str_cmd);
 
 };
 
