@@ -51,8 +51,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     map->baidu_map_init();
 
+    /*post 返回信息*/
     connect(map->manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(replyFinished(QNetworkReply*)));
 
+     connect(this, SIGNAL(terminal_bak(QString)),terminal,SLOT(get_terminal_bak(QString));
 
 
     init_ui();
@@ -699,6 +701,13 @@ void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 
    }
 
+
+   if(rootnode.tagName() == "term_cmd_bak"){
+
+        QString str = rootnode.attributeNode("body").value();
+        emit terminal_bak(str);
+
+   }
 
 }
 

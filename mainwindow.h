@@ -170,6 +170,9 @@ private:
     void init_ui(void);
 
 
+signals:
+    terminal_bak(QString str);
+
 };
 
 #endif // MAINWINDOW_H

@@ -21,6 +21,10 @@ public:
 protected:
     bool eventFilter(QObject *target, QEvent *event);//事件过滤器
 
+public slots:
+
+      get_terminal_bak(QString);
+
 
 private:
     Ui::terminal_cmd *ui;

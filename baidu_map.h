@@ -25,6 +25,13 @@ public:
 
       QNetworkAccessManager *manager;
 
+
+public slots:
+
+
+      get_terminal_bak(void);
+
+
 private slots:
 
 

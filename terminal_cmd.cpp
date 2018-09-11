@@ -17,7 +17,13 @@ terminal_cmd::~terminal_cmd()
 }
 
 
+/*显示terminal 返回信息*/
+terminal_cmd::get_terminal_bak(QString str)
+{
 
+    ui->textEdit->append(str);
+
+}
 
 
 bool terminal_cmd::eventFilter(QObject *target, QEvent *event)
