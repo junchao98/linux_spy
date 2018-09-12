@@ -63,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /*test*/
 
-       map->post_ip("");
 
     /*end test*/
 
@@ -575,11 +574,14 @@ void MainWindow::send_init_file()
 
 }
 
-
+/*tablewidget 创建client 并显示IP，物理地址*/
 void MainWindow::show_client(struct m_client * p_clinet )
 {
 
     QString inf_str;
+	QString ip_str;
+
+
 
     inf_str.sprintf("%x", p_clinet->clientConnection);
 
@@ -592,10 +594,13 @@ void MainWindow::show_client(struct m_client * p_clinet )
 
     QDateTime time = QDateTime::currentDateTime();
     QString time_str = time.toString("hh:m:s");
-     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, TIME_POINT, new QTableWidgetItem(time_str));
+    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, TIME_POINT, new QTableWidgetItem(time_str));
 
+	ip_str = p_clinet->clientConnection->peerAddress().toString();
 
-    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, IP_POINT, new QTableWidgetItem(p_clinet->clientConnection->peerAddress().toString()));
+	map->post_ip(ip_str);	
+
+    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, IP_POINT, new QTableWidgetItem(ip_str));
 
 
 }
@@ -731,7 +736,7 @@ void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 
 }
 
-/*解析这段状态xml*/
+/*解析这段状态xml 并在ui显示*/
 void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
 {
 
