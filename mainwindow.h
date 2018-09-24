@@ -114,6 +114,7 @@ public:
        QList<struct m_client *> file_clinet_list;
 
 
+       void client_ui_clear(QString id);
        void log_printf(QString log_text);
        /*Yin版本发布系统*/
 

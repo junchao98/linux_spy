@@ -143,6 +143,8 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 
 }
 
+
+/*发送shell命令*/
 void MainWindow::send_terminal_cmd(QString str_cmd)
 {
 
@@ -217,6 +219,9 @@ void MainWindow::init_ui(void)
      image_init.load(":/res/about.png");
      ui->label_about->setPixmap(image_init);
 
+     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+     ui->tableWidget->setFrameShape(QFrame::NoFrame);
+     ui->tableWidget-> setSelectionBehavior(QAbstractItemView::SelectRows);
 
 
 }
@@ -321,9 +326,6 @@ void MainWindow::sendMessage(QTcpSocket * socket, char* s_data)
      char *send_data = s_data;
      char miwen[1024] = {0};
 
-
-     //QByteArray ba = s_data.toLatin1(); // must
-     //send_data=ba.data();
 
       qDebug()<<"data" << send_data;
 
@@ -580,8 +582,6 @@ void MainWindow::show_client(struct m_client * p_clinet )
 
     QString inf_str;
 	QString ip_str;
-
-
 
     inf_str.sprintf("%x", p_clinet->clientConnection);
 
@@ -860,11 +860,14 @@ void MainWindow::m_disconnect()
 
 
                 QString msg_str;
-                msg_str.sprintf("%x disconnected", clientConnection);
-              ui->textBrowser->append(msg_str);
+                msg_str.sprintf("%x", clientConnection);
+                ui->textBrowser->append(msg_str+" disconnected");
 
-             msg_clinet_list.removeAt(i);
+              msg_clinet_list.removeAt(i);
 
+              clientConnection->deleteLater();
+
+              client_ui_clear(msg_str);
              /*@添加ui 清理工作*/
              break;
 
@@ -874,6 +877,24 @@ void MainWindow::m_disconnect()
 
 
  }
+
+/*从table删除disconnected 的 client*/
+void MainWindow::client_ui_clear(QString id)
+{
+
+    for(int i=0; i<ui->tableWidget->rowCount(); i++){
+
+
+         qDebug() << ui->tableWidget->item(i, ID_POINT)->text();
+            if(ui->tableWidget->item(i, ID_POINT)->text() == id){
+                ui->tableWidget->removeRow(i);
+                qDebug() << "found clear";
+
+            }
+    }
+
+}
+
 
 
 /*发布新的版本信息*/
