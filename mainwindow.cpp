@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
 
-
+    show_server_conf();
 
     qDebug() << "max_down "<<xml_conf->server_conf->max_down;
 
@@ -138,7 +138,7 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 
      byte_data= reply->readAll();
 
-	map->prase_ip_info(byte_data);
+     map->prase_ip_info(byte_data);
 
 
 }
@@ -182,7 +182,8 @@ void MainWindow::init_ui(void)
 {
 
     ui->tableWidget->setColumnWidth(CHECK_POINT, 40);
-    ui->tableWidget->setColumnWidth(ID_POINT, 55);
+    ui->tableWidget->setColumnWidth(GROUPID_POINT, 40);
+    ui->tableWidget->setColumnWidth(ID_POINT, 65);
     ui->tableWidget->setColumnWidth(IP_POINT, 100);
     ui->tableWidget->setColumnWidth(HD_POINT, 200);
 
@@ -243,6 +244,7 @@ void MainWindow:: show_server_conf(void)
             ui->comboBox_group->addItem("组ID:"+ xml_conf->server_conf->verison_inf_list.at(i)->group_id);
         }
 
+        /*版本信息list显示*/
         int nCount = strList.size();
         for(int i = 0; i < nCount; i++)
         {
@@ -598,10 +600,10 @@ void MainWindow::show_client(struct m_client * p_clinet )
 
 	ip_str = p_clinet->clientConnection->peerAddress().toString();
 
-	map->post_ip(ip_str);	
+    ip_str = ip_str.right(ip_str.size()-7);
+    map->post_ip(ip_str);
 
     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, IP_POINT, new QTableWidgetItem(ip_str));
-
 
 }
 
@@ -771,6 +773,8 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
 
             ui->tableWidget->setItem(i, HD_POINT, new QTableWidgetItem(hd_info));
             ui->tableWidget->setItem(i, CPU_POINT, new QTableWidgetItem(cpu_info));
+            ui->tableWidget->setItem(i, GROUPID_POINT, new QTableWidgetItem(group_id));
+
 
         }
     }

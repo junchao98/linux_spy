@@ -7,25 +7,8 @@
 void baidu_map::baidu_map_init(void)
 {
 
-    /*
-     * QByteArray str_json
-    QJsonParseError json_error;
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(str_json, &json_error);
-
-
-    QJsonObject rootObj = jsonDoc.object();
-
-        //输出所有key，这一步是非必须的，放最后的话，你可能读不到任何key
-        QStringList keys = rootObj.keys();
-        for(int i = 0; i < keys.size(); i++)
-        {
-            qDebug() << "key" << i << " is:" << keys.at(i);
-        }
-*/
-
 
     manager = new QNetworkAccessManager();
-
 
 }
 
