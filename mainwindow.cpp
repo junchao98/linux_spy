@@ -161,7 +161,8 @@ void MainWindow::send_terminal_cmd(QString str_cmd)
 
                     ui->textBrowser->append(str_cmd);
 
-                    sendMessage( msg_clinet_list.at(id)->clientConnection, str_cmd.toLatin1().data());
+                    sendMessage( msg_clinet_list.at(id)->clientConnection,
+                                 r_cmd.toLatin1().data());
 
            }
 
@@ -1036,12 +1037,38 @@ void MainWindow::on_pushButton_send_cmd_clicked()
 void MainWindow::on_change_gid_click(bool)
 {
 
+
+    QString cmd = "<cmd body=\"change_gid\" para1=\"xxxx\" />";
+    QString id;
+    int point;
+
     qDebug() << "on_change_gid_click";
 
-    QString cmd = "<cmd body=\"xxxxx\"/>";
+    c_gid->exec();
+
+    if(c_gid->new_gid.isEmpty())return;
+
+    for(int i=0; i<ui->tableWidget->rowCount(); i++){
+
+        if(ui->tableWidget->item(i,ID_POINT)->isSelected()){
+
+              id = ui->tableWidget->item(i, ID_POINT)->text();
+              point =  find_msg_clinet_point(id);
+
+              cmd.replace(cmd.indexOf("xxxx"), 4, c_gid->new_gid);
+
+              sendMessage(msg_clinet_list.at(point)->clientConnection, cmd.toLatin1().data());
+
+              qDebug() << cmd;
+        }
+
+    }
 
 
 
+
+
+    c_gid->new_gid.clear();
 }
 
 

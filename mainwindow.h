@@ -17,7 +17,7 @@
 #include "baidu_map.h"
 #include "send_file.h"
 #include "terminal_cmd.h"
-
+#include "change_gid.h"
 
 
 
@@ -98,7 +98,7 @@ public:
       xml * xml_conf = new xml;
       send_file *send = new send_file;
       terminal_cmd *terminal = new terminal_cmd;
-
+      change_gid * c_gid = new change_gid;
 
       baidu_map * map = new baidu_map;
 
