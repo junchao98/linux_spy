@@ -162,7 +162,7 @@ void MainWindow::send_terminal_cmd(QString str_cmd)
                     ui->textBrowser->append(str_cmd);
 
                     sendMessage( msg_clinet_list.at(id)->clientConnection,
-                                 r_cmd.toLatin1().data());
+                                 str_cmd.toLatin1().data());
 
            }
 
