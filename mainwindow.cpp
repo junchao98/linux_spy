@@ -1012,10 +1012,10 @@ void MainWindow::on_tableWidget_customContextMenuRequested(const QPoint &pos)
 {
 
     QMenu *cmenu = new QMenu(ui->tableWidget);
-    QAction *action1 = cmenu->addAction("menu 1");
+    QAction *action1_change_gid = cmenu->addAction("修改组ID");
     QAction *action2 = cmenu->addAction("Menu 2");
     QAction *action3 = cmenu->addAction("Menu 3");
-    //connect(action1, SIGNAL(triggered(bool)), this, SLOT(on_menu_click(bool)));
+    connect(action1_change_gid, SIGNAL(triggered(bool)), this, SLOT(on_change_gid_click(bool)));
    // connect(action2, SIGNAL(triggered(bool)), this, SLOT(on_menu_click(bool)));
    // connect(action3, SIGNAL(triggered(bool)), this, SLOT(on_menu_click(bool)));
     cmenu->exec(QCursor::pos());
@@ -1033,6 +1033,16 @@ void MainWindow::on_pushButton_send_cmd_clicked()
 }
 
 
+void MainWindow::on_change_gid_click(bool)
+{
+
+    qDebug() << "on_change_gid_click";
+
+    QString cmd = "<cmd body=\"xxxxx\"/>";
+
+
+
+}
 
 
 

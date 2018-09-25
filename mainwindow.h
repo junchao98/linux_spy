@@ -151,6 +151,8 @@ private slots:
 
     void on_pushButton_send_cmd_clicked();
 
+    void on_change_gid_click(bool);
+
 private:
     Ui::MainWindow *ui;
 
