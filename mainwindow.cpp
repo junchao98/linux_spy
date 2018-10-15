@@ -15,7 +15,6 @@
 
 #include <QMessageBox>
 /*
- *1.下线处理
  *
  * */
 enum TABLE_POINT{
@@ -79,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef Q_OS_LINUX
 
-       xml_conf->read_conf("/home/lornyin/work/lus/lus_server_conf.xml");
+       xml_conf->read_conf("/home/lornyin/lus/lus_server_conf.xml");
 
        log_printf("linux system");
 #endif
@@ -718,9 +717,12 @@ void MainWindow::do_cmd(QString cmd, QTcpSocket * socket)
 
                     qDebug() << "file_path"<<down_info.file_path;
                     down_info.status = 1;
+                    QString cmd = "<send_file type=\"kernel\" md5=\"xxxx\" />";
+                    QString file_md5 = get_file_md5(down_info.file_path);
 
+                    cmd.replace("xxxx", file_md5);
 
-                    sendMessage(msg_clinet_list.at(point)->clientConnection,  "<send_file type=\"kernel\" md5=\"\" />");
+                    sendMessage(msg_clinet_list.at(point)->clientConnection,  cmd.toLatin1().data());
                 }
 
             }
@@ -746,12 +748,14 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
     QString cpu_info,
             hd_info,
             client_id,
-            group_id;
+            group_id,
+            client_ver;
 
     client_id = rootnode.attributeNode("id").value();
     cpu_info  = rootnode.attributeNode("cpu_info").value();
     hd_info   = rootnode.attributeNode("disk_space").value();
     group_id  = rootnode.attributeNode("group_id").value();
+    client_ver = rootnode.attributeNode("verison").value();
 
     qDebug() << "prase_bd_info";
     for(int i=0; i<msg_clinet_list.size(); i++){
@@ -766,8 +770,9 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
     }
 
 
-    ui->textBrowser->append(cpu_info + "  " + hd_info);
+    //ui->textBrowser->append(cpu_info + "  " + hd_info);
 
+    //ui info flush
     for(int i=0; i<ui->tableWidget->rowCount(); i++){
 
         if(ui->tableWidget->item(i, ID_POINT)->text() == client_id){
@@ -779,6 +784,7 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
 
         }
     }
+
 
     /*根据组ID 发送对应版本最新*/
 
@@ -797,10 +803,14 @@ void MainWindow::prase_bd_info( QDomElement rootnode, QTcpSocket * socket)
         return;
     }
 
-    QString msg_str;
-    msg_str.sprintf("<verison_info id=\"%x\" now_verison=\"%d\"></init_msg>", socket, new_verison);
-    QByteArray ba = msg_str.toLatin1();
-    sendMessage(socket, ba.data());
+    if(new_verison > client_ver.toInt()){
+
+        QString msg_str;
+        msg_str.sprintf("<verison_info id=\"%x\" now_verison=\"%d\"></init_msg>", socket, new_verison);
+        QByteArray ba = msg_str.toLatin1();
+        sendMessage(socket, ba.data());
+
+    }
 
 }
 
