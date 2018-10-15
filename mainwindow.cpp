@@ -139,7 +139,6 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 
      map->prase_ip_info(byte_data);
 
-
 }
 
 
@@ -266,7 +265,7 @@ void MainWindow:: show_server_conf(void)
 
 }
 
-
+/*扫描等待下载列表，并发起下载*/
 void MainWindow::auto_scanf_down(void)
 {
 
@@ -295,10 +294,9 @@ void MainWindow::auto_scanf_down(void)
 
 }
 
-
+/*弃用*/
 void MainWindow::on_pushButton_clicked()
 {
-
 
 
     QString tmp;
@@ -585,6 +583,13 @@ void MainWindow::show_client(struct m_client * p_clinet )
     QString inf_str;
 	QString ip_str;
 
+    /*获取client的IP地址*/
+    ip_str = p_clinet->clientConnection->peerAddress().toString();
+
+    /*post 获取IP地理地址*/
+    ip_str = ip_str.right(ip_str.size()-7);
+    map->post_ip(ip_str);
+
     inf_str.sprintf("%x", p_clinet->clientConnection);
 
     ui->tableWidget->insertRow(ui->tableWidget->rowCount());
@@ -598,12 +603,9 @@ void MainWindow::show_client(struct m_client * p_clinet )
     QString time_str = time.toString("hh:m:s");
     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, TIME_POINT, new QTableWidgetItem(time_str));
 
-	ip_str = p_clinet->clientConnection->peerAddress().toString();
-
-    ip_str = ip_str.right(ip_str.size()-7);
-    map->post_ip(ip_str);
-
     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, IP_POINT, new QTableWidgetItem(ip_str));
+
+    ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, PLACE_POINT, new QTableWidgetItem(map->g_addr));
 
 }
 
@@ -1019,6 +1021,7 @@ QString MainWindow::get_file_md5(QString str_path)
  }
 
 
+/*右键菜单*/
 void MainWindow::on_tableWidget_customContextMenuRequested(const QPoint &pos)
 {
 

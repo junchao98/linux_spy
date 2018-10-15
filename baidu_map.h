@@ -25,7 +25,7 @@ public:
 
       QNetworkAccessManager *manager;
 
-
+    QString g_addr;
 
 private slots:
 

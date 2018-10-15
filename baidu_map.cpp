@@ -18,7 +18,7 @@ void baidu_map::post_ip(QString ip)
 {
 
     QString token_str;
-
+    g_addr.clear();
 
     QNetworkRequest *request = new QNetworkRequest();
 
@@ -55,6 +55,7 @@ if (!doucment.isNull() && (jsonError.error == QJsonParseError::NoError)) {  // è
             if (value.isString()) {
                 QString strName = value.toString();
                 qDebug() << "address : " << strName;
+                g_addr = strName;
             }
         }
 
