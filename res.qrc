@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/app_edit.ico</file>
+        <file>res/app_info.ico</file>
+        <file>res/app_search.ico</file>
+        <file>res/app_send.ico</file>
+        <file>res/about.png</file>
+        <file>res/lus_server_conf.xml</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,12 @@
+
+<lus_server>
+
+	<group_conf>
+		<group id="1" verison="0" path="/home/lornyin/work/lus/update.tar.bz2"/>
+		
+	</group_conf>
+	
+	<down_conf max_down="20"/>
+	
+
+</lus_server>
