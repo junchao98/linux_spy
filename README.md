@@ -11,3 +11,5 @@ Used for batch remote monitoring, upgrade and maintenance of Linux embedded devi
  2.文件传输
  3.系统资源监视
  4.批量远程命令执行
+
+有朋友感兴趣可以联系我junchao_zhao@yeah.net一起开发完善
