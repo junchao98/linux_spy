@@ -656,7 +656,7 @@ void MainWindow::readMessage(QTcpSocket * socket)
     //解密
     aes->OnAesUncrypt((LPVOID)data, (DWORD)sizeof(char)*(blockSize-(int)sizeof(quint16)),(LPVOID)jiemi); //进行解密
 
-    //for(int i=0; i<32; i++) qDebug("# %x", data[i]);
+    for(int i=0; i<32; i++) qDebug("# %x", jiemi[i]);
 
     qDebug()<<"un size" << (DWORD)sizeof(char)*(blockSize-(int)sizeof(quint16));
 
@@ -671,7 +671,7 @@ void MainWindow::readMessage(QTcpSocket * socket)
   // email_data(jiemi, addr);
    // qDebug() << "check " << strlen(jiemi) << jiemi[strlen(jiemi) -1];
 
-    qDebug() << "recive: " << QString(QLatin1String(jiemi));
+    //qDebug() << "recive: " << QString(QLatin1String(jiemi));
 
     do_cmd(QString(QLatin1String(jiemi)), socket);
 
